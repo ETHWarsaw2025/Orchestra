@@ -1,77 +1,199 @@
-# Golem DB Practice
+# 🎵 Golem-Powered Blockchain Audio Aggregator
 
-A simple practice project for working with Golem DB - the decentralized storage and computing platform.
+A revolutionary project that transforms blockchain data into live musical symphonies using Golem DB and Strudel. This project was created for **ETHWarsaw2025** and showcases the intersection of decentralized technology, data visualization, and musical composition.
 
-## What is Golem DB?
+## 🎼 What is the Blockchain Symphony?
 
-Golem DB is a decentralized platform where you can:
-1. **Store data** - Upload your data to the Golem network
-2. **Retrieve data** - Query and download stored data
-3. **Process data** - Use distributed computing for analysis
+The Blockchain Symphony is a real-time musical composition where:
+- **Ethereum, Bitcoin, and Polygon** data creates musical layers
+- **Price movements** become musical notes and melodies
+- **Trading volume** drives rhythm patterns
+- **Gas fees** add audio effects (reverb, delay, room)
+- **Network volatility** influences musical tempo
+- **All chains play together** in perfect harmony
 
-## Key Concept
+## ✨ Features
 
-**Golem DB doesn't have data by default** - you must store your data first before you can retrieve and analyze it.
+### 🎵 **Musical Layers**
+- **🟦 Ethereum Layer** - Lead piano (high frequency, complex patterns)
+- **🟨 Bitcoin Layer** - Bass foundation (low frequency, steady rhythm)
+- **🟣 Polygon Layer** - Percussion texture (mid frequency, fast patterns)
+- **🥁 Rhythm Section** - Volume-based drum patterns
+- **🎼 Harmonic Layer** - Price correlation chords
+- **🌊 Ambient Layer** - Network activity atmosphere
 
-## Quick Start
+### 📊 **Real-time Data Visualization**
+- Interactive blockchain metrics dashboard
+- Live price charts and network activity graphs
+- Multi-chain data comparison (Ethereum, Bitcoin, Polygon)
+- Volatility analysis and trend visualization
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### 🎮 **Integrated Strudel Player**
+- Embedded web browser for live music playback
+- Real-time symphony generation from blockchain data
+- Export functionality for saving musical compositions
+- Copy-to-clipboard for external Strudel usage
 
-2. **Set up environment variables:**
-   Create a `.env` file with your Golem DB credentials:
-   ```env
-   PRIVATE_KEY=your_private_key_here
-   RPC_URL=https://ethwarsaw.holesky.golemdb.io/rpc
-   WS_URL=wss://ethwarsaw.holesky.golemdb.io/rpc/ws
-   ```
+### 🗄️ **Golem DB Integration**
+- Decentralized storage of blockchain data
+- Persistent musical compositions on the Golem network
+- Distributed computing for data analysis
+- Blockchain-instrument mapping storage
 
-3. **Run the Golem DB client:**
-   ```bash
-   python golem_db_client.py
-   ```
+## 🚀 Quick Start
 
-## Files
-
-- `golem_db_client.py` - Core Golem DB client functionality
-- `crud.py` - Original blockchain analysis (kept for reference)
-- `requirements.txt` - Python dependencies
-- `.env` - Environment variables (create this)
-
-## Usage
-
-The `GolemDBClient` class provides basic operations:
-
-```python
-from golem_db_client import GolemDBClient
-
-# Create client
-client = GolemDBClient()
-
-# Connect
-await client.connect()
-
-# Store data
-await client.store_entity("my_key", "my_value", {"type": "demo"})
-
-# Retrieve data
-entities = await client.retrieve_entities()
-
-# Disconnect
-await client.disconnect()
+### 1. **Clone the Repository**
+```bash
+git clone https://github.com/ETHWarsaw2025/Orchestra.git
+cd Orchestra
 ```
 
-## Important Notes
+### 2. **Set up Virtual Environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-- Golem DB requires you to store data before you can retrieve it
-- This is a two-step process: Store → Retrieve → Analyze
-- The platform provides decentralized storage and computing
-- Data persists on the Golem network for future use
+### 3. **Install Dependencies**
+```bash
+pip install -r Hermes/requirements.txt
+```
 
-## Getting Help
+### 4. **Run the Blockchain Symphony**
+```bash
+cd Hermes
+python gui.py
+```
 
-- Check the Golem documentation for advanced features
-- Ensure your account has sufficient balance for operations
-- Verify your network connection and credentials
+## 🎵 How It Works
+
+### **Data-to-Music Mapping**
+- **Price → Notes**: Each blockchain's price determines musical notes and octaves
+- **Volume → Rhythm**: Trading volume creates rhythm patterns
+- **Gas Fees → Effects**: Network congestion adds reverb, delay, and room effects
+- **Volatility → Tempo**: Price volatility influences musical tempo
+
+### **Musical Generation Process**
+1. **Fetch Real-time Data** - Collect blockchain metrics from RPC nodes
+2. **Analyze Patterns** - Calculate volatility, trends, and correlations
+3. **Generate Symphony** - Convert data into Strudel musical code
+4. **Play Together** - All chains contribute to one unified composition
+5. **Store on Golem** - Save compositions to decentralized storage
+
+## 📁 Project Structure
+
+```
+Orchestra/
+├── Hermes/
+│   ├── gui.py                    # 🎵 Main symphony GUI
+│   ├── main.py                   # System orchestrator
+│   ├── models.py                 # Data models
+│   ├── blockchain_client.py      # Blockchain data fetching
+│   ├── data_analyzer.py          # Data analysis
+│   ├── golem_storage.py          # Golem DB integration
+│   ├── orchestrator.py           # System orchestration
+│   ├── strudel_generator.py      # Audio track generation
+│   └── requirements.txt          # Dependencies
+└── README.md                     # This file
+```
+
+## 🛠️ Dependencies
+
+### **Core Requirements**
+- `golem-base-sdk` - Golem DB integration
+- `web3` - Ethereum blockchain interaction
+- `PyQt6` + `PyQt6-WebEngine` - GUI and embedded browser
+- `matplotlib` - Data visualization
+- `pandas` + `numpy` - Data analysis
+- `aiohttp` - Async HTTP requests
+
+### **Installation**
+```bash
+pip install -r Hermes/requirements.txt
+```
+
+## 🎼 Usage
+
+### **Launch the Symphony**
+```bash
+cd Hermes
+python gui.py
+```
+
+### **Interact with the GUI**
+1. **📊 Blockchain Data Tab** - View real-time metrics and charts
+2. **🎵 Blockchain Symphony Tab** - Play the generated symphony
+3. **🎼 Orchestra Config Tab** - Configure chain-instrument mappings
+
+### **Generate New Symphony**
+- Click "🔄 Regenerate Symphony" to create new composition from current data
+- Click "🎵 Play Symphony" to load in Strudel player
+- Click "📋 Copy Code" to copy musical code to clipboard
+
+## 🌐 External Integration
+
+### **Strudel Integration**
+- **Website**: https://strudel.tidalcycles.org/
+- **Samples**: https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json
+- **Documentation**: https://strudel.tidalcycles.org/learn/
+
+### **Golem Network**
+- **Website**: https://golem.network/
+- **Documentation**: https://docs.golem.network/
+- **RPC Endpoint**: https://ethwarsaw.holesky.golemdb.io/rpc
+
+## 🎵 Sample Symphony Code
+
+```javascript
+// Generated Strudel track for blockchain symphony
+samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
+
+stack(
+  // 🟦 ETHEREUM LAYER - Lead piano
+  n("c4 e4 g4")
+    .sound("piano")
+    .gain(0.4)
+    .room(0.8)
+    .size(0.9)
+    .delay(0.2),
+    
+  // 🟨 BITCOIN LAYER - Bass foundation
+  n("c2 e2 g2")
+    .sound("bd")
+    .gain(0.6)
+    .lpf(800),
+    
+  // 🟣 POLYGON LAYER - Percussion
+  n("c5 e5 g5")
+    .sound("hh")
+    .gain(0.5)
+    .hpf(400),
+    
+  // Rhythm patterns based on volume
+  s("bd sd bd sd, hh*8").gain(0.3)
+)
+```
+
+## 🤝 Contributing
+
+This project was created for **ETHWarsaw2025**. Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🎵 Acknowledgments
+
+- **Golem Network** - Decentralized computing platform
+- **Strudel** - Live coding environment for musical patterns
+- **TidalCycles** - Algorithmic pattern library
+- **ETHWarsaw2025** - Ethereum community event
+
+---
+
+**🎵 The blockchain symphony plays on... Each chain contributes its unique voice to the digital orchestra! 🎵⛓️🎼**
