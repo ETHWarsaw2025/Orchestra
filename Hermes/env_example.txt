@@ -1,0 +1,11 @@
+# Golem DB Configuration
+PRIVATE_KEY=0x0000000000000000000000000000000000000000000000000000000000000001
+RPC_URL=https://ethwarsaw.holesky.golemdb.io/rpc
+WS_URL=wss://ethwarsaw.holesky.golemdb.io/rpc/ws
+
+# Blockchain API Keys (Optional - will use defaults if not provided)
+INFURA_PROJECT_ID=your_infura_project_id_here
+ALCHEMY_API_KEY=your_alchemy_api_key_here
+COINGECKO_API_KEY=your_coingecko_api_key_here
+
+
