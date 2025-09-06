@@ -87,7 +87,7 @@ class GolemBlockchainGUI(QMainWindow):
         self.orchestra_tab = self.create_orchestra_tab()
         
         self.tab_widget.addTab(self.blockchain_tab, "📊 Blockchain Data")
-        self.tab_widget.addTab(self.strudel_tab, "🎵 Strudel Player")
+        self.tab_widget.addTab(self.strudel_tab, "🎵 Blockchain Symphony")
         self.tab_widget.addTab(self.orchestra_tab, "🎼 Orchestra Config")
         
         layout.addWidget(self.tab_widget)
@@ -160,7 +160,7 @@ class GolemBlockchainGUI(QMainWindow):
         layout = QVBoxLayout()
         
         # Header
-        header = QLabel("🎵 Strudel Audio Player")
+        header = QLabel("🎵 Blockchain Symphony - All Chains Playing Together")
         header.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(header)
@@ -168,7 +168,7 @@ class GolemBlockchainGUI(QMainWindow):
         # Control panel
         control_panel = QHBoxLayout()
         
-        self.refresh_tracks_btn = QPushButton("🔄 Refresh Tracks")
+        self.refresh_tracks_btn = QPushButton("🔄 Regenerate Symphony")
         self.refresh_tracks_btn.clicked.connect(self.refresh_strudel_tracks)
         control_panel.addWidget(self.refresh_tracks_btn)
         
@@ -226,7 +226,7 @@ class GolemBlockchainGUI(QMainWindow):
         self.copy_code_btn.clicked.connect(self.copy_track_code)
         player_controls.addWidget(self.copy_code_btn)
         
-        self.load_track_btn = QPushButton("🎵 Load Track")
+        self.load_track_btn = QPushButton("🎵 Play Symphony")
         self.load_track_btn.clicked.connect(self.load_selected_track)
         player_controls.addWidget(self.load_track_btn)
         
@@ -402,58 +402,13 @@ class GolemBlockchainGUI(QMainWindow):
         
         self.strudel_tracks = [
             {
-                "id": "ethereum_1757194957",
-                "chain": "ethereum",
+                "id": "blockchain_symphony",
+                "chain": "all",
                 "timestamp": "2024-01-01 12:00:00",
                 "tempo": 120,
-                "instrument": "guitar",
-                "effects": "hpf",
-                "code": """
-// Generated Strudel track for ethereum
-samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
-
-stack(
-    s("bd sd bd lt").gain(0.5),
-    s("hh*16").gain(0.3),
-    n("c3 e3 g3").sound("piano").gain(0.4)
-)
-"""
-            },
-            {
-                "id": "bitcoin_1757194957",
-                "chain": "bitcoin",
-                "timestamp": "2024-01-01 12:00:00",
-                "tempo": 120,
-                "instrument": "drum",
-                "effects": "",
-                "code": """
-// Generated Strudel track for bitcoin
-samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
-
-stack(
-    s("bd sd bd lt").gain(0.6),
-    s("hh*8").gain(0.4),
-    n("g3 bb3 d4").sound("bd").gain(0.5)
-)
-"""
-            },
-            {
-                "id": "polygon_1757194957",
-                "chain": "polygon",
-                "timestamp": "2024-01-01 12:00:00",
-                "tempo": 140,
-                "instrument": "bass",
-                "effects": "lpf",
-                "code": """
-// Generated Strudel track for polygon
-samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
-
-stack(
-    s("bd sd bd lt").gain(0.7),
-    s("hh*12").gain(0.5),
-    n("f2 a2 c3").sound("gm_synth_bass_1").gain(0.6)
-)
-"""
+                "instrument": "orchestra",
+                "effects": "full",
+                "code": self.generate_blockchain_symphony()
             }
         ]
         
@@ -479,6 +434,146 @@ stack(
         ]
         
         self.update_all_displays()
+    
+    def generate_blockchain_symphony(self):
+        """Generate a symphony that combines all blockchain data into one musical composition"""
+        ethereum_data = self.blockchain_data["ethereum"]
+        bitcoin_data = self.blockchain_data["bitcoin"]
+        polygon_data = self.blockchain_data["polygon"]
+        
+        # Calculate musical parameters based on blockchain data
+        ethereum_tempo = max(60, min(180, int(ethereum_data["volatility"] * 20)))
+        bitcoin_tempo = max(60, min(180, int(bitcoin_data["volatility"] * 20)))
+        polygon_tempo = max(60, min(180, int(polygon_data["volatility"] * 20)))
+        
+        # Price-based note patterns
+        eth_notes = self.price_to_notes(ethereum_data["price"], "ethereum")
+        btc_notes = self.price_to_notes(bitcoin_data["price"], "bitcoin")
+        poly_notes = self.price_to_notes(polygon_data["price"], "polygon")
+        
+        # Volume-based rhythm patterns
+        eth_rhythm = self.volume_to_rhythm(ethereum_data["volume"])
+        btc_rhythm = self.volume_to_rhythm(bitcoin_data["volume"])
+        poly_rhythm = self.volume_to_rhythm(polygon_data["volume"])
+        
+        # Gas fee-based effects
+        eth_effects = self.gas_to_effects(ethereum_data["gas_fee"])
+        btc_effects = self.gas_to_effects(bitcoin_data["gas_fee"])
+        poly_effects = self.gas_to_effects(polygon_data["gas_fee"])
+        
+        symphony_code = f"""
+// 🎵 BLOCKCHAIN SYMPHONY - Generated from Real Data
+// Ethereum: ${ethereum_data["price"]:,.2f} | Bitcoin: ${bitcoin_data["price"]:,.2f} | Polygon: ${polygon_data["price"]:,.2f}
+
+samples('https://raw.githubusercontent.com/tidalcycles/Dirt-Samples/master/strudel.json')
+
+// Main symphony - all blockchains playing together
+stack(
+  // 🟦 ETHEREUM LAYER - Lead (High frequency, complex patterns)
+  n("{eth_notes}")
+    .sound("piano")
+    .gain(0.4)
+    .{eth_effects}
+    .lpf(1200)
+    .hpf(200),
+    
+  // 🟨 BITCOIN LAYER - Bass/Foundation (Low frequency, steady rhythm)
+  n("{btc_notes}")
+    .sound("bd")
+    .gain(0.6)
+    .{btc_effects}
+    .lpf(800)
+    .gain(0.7),
+    
+  // 🟣 POLYGON LAYER - Percussion/Texture (Mid frequency, fast patterns)
+  n("{poly_notes}")
+    .sound("hh")
+    .gain(0.5)
+    .{poly_effects}
+    .hpf(400)
+    .lpf(2000),
+    
+  // 🥁 RHYTHM SECTION - Based on transaction volumes
+  s("{eth_rhythm}").gain(0.3),
+  s("{btc_rhythm}").gain(0.4),
+  s("{poly_rhythm}").gain(0.2),
+  
+  // 🎼 HARMONIC LAYER - Price correlations
+  n("c3 e3 g3 bb3 d4 f4 a4")
+    .sound("piano")
+    .gain(0.2)
+    .lpf(600)
+    .room(0.3)
+    .size(0.5),
+    
+  // 🌊 AMBIENT LAYER - Network activity
+  n("~ c2 ~ e2 ~ g2 ~ bb2")
+    .sound("piano")
+    .gain(0.15)
+    .lpf(400)
+    .room(0.8)
+    .size(0.9)
+    .delay(0.3)
+    .delayfeedback(0.2)
+)
+
+// 🎵 The blockchain symphony plays on...
+// Each chain contributes its unique voice to the digital orchestra
+"""
+        return symphony_code.strip()
+    
+    def price_to_notes(self, price, chain):
+        """Convert price to musical notes"""
+        if chain == "ethereum":
+            # Ethereum: C major scale, price determines octave and pattern
+            base_notes = ["c", "d", "e", "f", "g", "a", "b"]
+            octave = 3 + (int(price) % 1000) // 200
+            pattern_length = 3 + (int(price) % 10)
+            notes = []
+            for i in range(pattern_length):
+                note = base_notes[i % len(base_notes)]
+                notes.append(f"{note}{octave}")
+            return " ".join(notes)
+        
+        elif chain == "bitcoin":
+            # Bitcoin: Pentatonic scale, more stable
+            base_notes = ["c", "d", "e", "g", "a"]
+            octave = 2 + (int(price) % 10000) // 2000
+            pattern_length = 2 + (int(price) % 5)
+            notes = []
+            for i in range(pattern_length):
+                note = base_notes[i % len(base_notes)]
+                notes.append(f"{note}{octave}")
+            return " ".join(notes)
+        
+        else:  # polygon
+            # Polygon: Chromatic scale, more experimental
+            base_notes = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"]
+            octave = 4 + (int(price * 100) % 100) // 20
+            pattern_length = 4 + (int(price * 100) % 8)
+            notes = []
+            for i in range(pattern_length):
+                note = base_notes[i % len(base_notes)]
+                notes.append(f"{note}{octave}")
+            return " ".join(notes)
+    
+    def volume_to_rhythm(self, volume):
+        """Convert volume to rhythm pattern"""
+        if volume > 5000000000:  # High volume
+            return "bd sd bd sd, hh*8"
+        elif volume > 1000000000:  # Medium volume
+            return "bd sd, hh*4"
+        else:  # Low volume
+            return "bd, hh*2"
+    
+    def gas_to_effects(self, gas_fee):
+        """Convert gas fee to audio effects"""
+        if gas_fee > 50:
+            return "room(0.8).size(0.9).delay(0.2).delayfeedback(0.3)"
+        elif gas_fee > 20:
+            return "room(0.4).size(0.6).delay(0.1)"
+        else:
+            return "room(0.2).size(0.3)"
     
     def update_all_displays(self):
         """Update all display widgets"""
@@ -568,9 +663,11 @@ stack(
         self.activity_canvas.draw()
     
     def refresh_strudel_tracks(self):
-        """Refresh Strudel tracks"""
-        self.status_bar.showMessage("Refreshing Strudel tracks...")
-        QTimer.singleShot(1000, lambda: self.status_bar.showMessage("Strudel tracks refreshed"))
+        """Refresh Strudel tracks and regenerate symphony"""
+        self.status_bar.showMessage("Refreshing blockchain symphony...")
+        # Regenerate the symphony with current data
+        self.strudel_tracks[0]["code"] = self.generate_blockchain_symphony()
+        QTimer.singleShot(1000, lambda: self.status_bar.showMessage("Blockchain symphony refreshed"))
         self.update_strudel_tracks()
     
     def update_strudel_tracks(self):
