@@ -1,0 +1,178 @@
+{
+  "blockchain_data": {
+    "ethereum": {
+      "price": 4272.26,
+      "volume": 5000000000,
+      "gas_fee": 0.0,
+      "transactions": 85,
+      "blocks": 19500000,
+      "volatility": 3.07
+    },
+    "optimism": {
+      "price": 2.85,
+      "volume": 800000000,
+      "gas_fee": 0.001,
+      "transactions": 120,
+      "blocks": 12000000,
+      "volatility": 4.2
+    },
+    "polygon": {
+      "price": 0.8,
+      "volume": 500000000,
+      "gas_fee": 30.0,
+      "transactions": 5000,
+      "blocks": 50000000,
+      "volatility": 6.94
+    },
+    "base": {
+      "price": 0.0003,
+      "volume": 300000000,
+      "gas_fee": 0.002,
+      "transactions": 200,
+      "blocks": 8000000,
+      "volatility": 5.8
+    }
+  },
+  "analyzed_metrics": {
+    "ethereum": {
+      "chain_name": "ethereum",
+      "timestamp": "2025-09-07T06:03:58.104654",
+      "price_change_percentage": 15.5,
+      "gas_fee_trend": 25.3,
+      "transaction_volume_change": 40.2,
+      "block_production_rate": 150.0,
+      "network_activity_score": 75.8,
+      "volatility_index": 65.2,
+      "liquidity_score": 80.1
+    },
+    "optimism": {
+      "chain_name": "optimism",
+      "timestamp": "2025-09-07T06:03:58.104688",
+      "price_change_percentage": 22.3,
+      "gas_fee_trend": 45.1,
+      "transaction_volume_change": 65.7,
+      "block_production_rate": 180.0,
+      "network_activity_score": 82.4,
+      "volatility_index": 58.9,
+      "liquidity_score": 75.3
+    },
+    "polygon": {
+      "chain_name": "polygon",
+      "timestamp": "2025-09-07T06:03:58.104693",
+      "price_change_percentage": 30.1,
+      "gas_fee_trend": 55.8,
+      "transaction_volume_change": 80.3,
+      "block_production_rate": 250.0,
+      "network_activity_score": 88.7,
+      "volatility_index": 70.5,
+      "liquidity_score": 85.4
+    },
+    "base": {
+      "chain_name": "base",
+      "timestamp": "2025-09-07T06:03:58.104696",
+      "price_change_percentage": 18.7,
+      "gas_fee_trend": 35.2,
+      "transaction_volume_change": 55.9,
+      "block_production_rate": 200.0,
+      "network_activity_score": 78.1,
+      "volatility_index": 62.3,
+      "liquidity_score": 82.7
+    }
+  },
+  "chain_instruments": {
+    "ethereum": {
+      "chain_name": "ethereum",
+      "instrument_type": "synthesizer",
+      "rpc_node_url": "https://mainnet.infura.io/v3/your-key",
+      "sound_profile": "gm_synth_lead",
+      "created_at": "2025-09-07T06:03:58.104700"
+    },
+    "optimism": {
+      "chain_name": "optimism",
+      "instrument_type": "lead",
+      "rpc_node_url": "https://optimism-mainnet.infura.io/v3/your-key",
+      "sound_profile": "gm_lead_6_voice",
+      "created_at": "2025-09-07T06:03:58.104703"
+    },
+    "polygon": {
+      "chain_name": "polygon",
+      "instrument_type": "drum",
+      "rpc_node_url": "https://polygon-rpc.com",
+      "sound_profile": "RolandTR909",
+      "created_at": "2025-09-07T06:03:58.104705"
+    },
+    "base": {
+      "chain_name": "base",
+      "instrument_type": "bass",
+      "rpc_node_url": "https://mainnet.base.org",
+      "sound_profile": "gm_acoustic_bass",
+      "created_at": "2025-09-07T06:03:58.104706"
+    }
+  },
+  "strudel_tracks": [
+    {
+      "id": "ethereum_dynamic",
+      "chain": "ethereum",
+      "timestamp": "2025-09-07 06:03:58",
+      "tempo": 97,
+      "instrument": "synthesizer",
+      "effects": ".hpf(tri.range(100, 5000).slow(6)), .room(1.5), .size(0.5), .flanger(3), .delay(0.11)",
+      "code": "// Dynamic Blockchain Audio Pattern\n// Generated: 2025-09-07T06:03:58.104785\n// Chain: ethereum\n// Activity: 75.8\n// Volatility: 65.2\n\nsetcps(1.62)\n\nstack(\n  // RHYTHMIC LAYER\n  stack(\n    s(\"bd ~ bd\").gain(0.89),\n    s(\"~ sd ~ sd\").gain(0.61),\n    s(\"hh*2\").gain(0.59)\n  ).bank('RolandTR909'),\n  \n  // LEAD MELODY\n  n(\"<60 62 63 65>\")\n  .scale(\"B:minor\")\n  .s(\"gm_lead_2_sawtooth\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .jux(rev)\n  .room(1.9)\n  .lpf(rand.range(400, 16000).slow(6))\n  .hpf(saw.range(100, 5000).slow(4)).room(1.0).size(0.4),\n  \n  // BASS LINE\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")\n  .s(\"gm_acoustic_bass\")\n  .gain(0.62)\n  .lpf(558)\n  .room(1.0),\n  \n  // HARMONIC PAD\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")\n  .s(\"gm_synth_strings_2\")\n  .gain(0.27)\n  .room(1.3)  // Reduced reverb\n  .shape(0.3)  // Less shape\n  .delay(0.12)  // Much less delay\n  .size(0.4).chorus(4).delay(0.07)\n)\n.late(\"[0 .01]*2\")  // Reduced late effects\n.size(1.6)  // Smaller size for less reverb"
+    },
+    {
+      "id": "optimism_dynamic",
+      "chain": "optimism",
+      "timestamp": "2025-09-07 06:03:58",
+      "tempo": 113,
+      "instrument": "lead",
+      "effects": ".hpf(tri.range(100, 5000).slow(5)), .room(1.2), .size(0.3), .flanger(6), .delay(0.11)",
+      "code": "// Dynamic Blockchain Audio Pattern\n// Generated: 2025-09-07T06:03:58.104900\n// Chain: optimism\n// Activity: 82.4\n// Volatility: 58.9\n\nsetcps(1.88)\n\nstack(\n  // RHYTHMIC LAYER\n  stack(\n    s(\"bd ~ bd\").gain(0.83),\n    s(\"~ sd ~ sd\").gain(0.61),\n    s(\"hh*2\").gain(0.55)\n  ).bank('RolandTR909'),\n  \n  // LEAD MELODY\n  n(\"<72 74 75 77>\")\n  .scale(\"B:dorian\")\n  .s(\"gm_lead_3_calliope\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .jux(rev)\n  .room(1.6)\n  .lpf(rand.range(400, 16000).slow(6))\n  .hpf(saw.range(100, 5000).slow(5)).room(1.6).size(0.4),\n  \n  // BASS LINE\n  n(\"0 2 3 5\")\n  .scale(\"B:dorian\")\n  .s(\"gm_acoustic_bass\")\n  .gain(0.35)\n  .lpf(479)\n  .room(1.6),\n  \n  // HARMONIC PAD\n  n(\"0 2 3 5\")\n  .scale(\"B:dorian\")\n  .s(\"gm_synth_pad_3_polysynth\")\n  .gain(0.43)\n  .room(1.4)  // Reduced reverb\n  .shape(0.3)  // Less shape\n  .delay(0.15)  // Much less delay\n  .size(0.4).phaser(6).delay(0.12)\n)\n.late(\"[0 .01]*2\")  // Reduced late effects\n.size(1.5)  // Smaller size for less reverb"
+    },
+    {
+      "id": "polygon_dynamic",
+      "chain": "polygon",
+      "timestamp": "2025-09-07 06:03:58",
+      "tempo": 132,
+      "instrument": "drum",
+      "effects": ".lpf(perlin.range(200, 20000).slow(4)), .room(1.0), .size(0.4), .flanger(4), .delay(0.14)",
+      "code": "// Dynamic Blockchain Audio Pattern\n// Generated: 2025-09-07T06:03:58.104972\n// Chain: polygon\n// Activity: 88.7\n// Volatility: 70.5\n\nsetcps(2.20)\n\nstack(\n  // RHYTHMIC LAYER\n  stack(\n    s(\"bd ~ bd\").gain(0.80),\n    s(\"~ sd ~ sd\").gain(0.54),\n    s(\"hh*2\").gain(0.22)\n  ).bank('RolandTR909'),\n  \n  // LEAD MELODY\n  n(\"<72 74 76 77>\")\n  .scale(\"B:mixolydian\")\n  .s(\"gm_lead_3_calliope\")\n  .clip(rand.range(0.2, 0.8).slow(3))\n  .jux(rev)\n  .room(1.4)\n  .lpf(cosine.range(250, 14000).slow(4))\n  .lpf(sine.range(200, 20000).slow(8)).room(0.5).size(0.5),\n  \n  // BASS LINE\n  n(\"0 2 3 5\")\n  .scale(\"B:mixolydian\")\n  .s(\"gm_acoustic_bass\")\n  .gain(0.37)\n  .lpf(740)\n  .room(0.5),\n  \n  // HARMONIC PAD\n  n(\"0 2 3 5\")\n  .scale(\"B:mixolydian\")\n  .s(\"gm_synth_pad_3_polysynth\")\n  .gain(0.41)\n  .room(1.0)  // Reduced reverb\n  .shape(0.2)  // Less shape\n  .delay(0.07)  // Much less delay\n  .size(0.5).phaser(3).delay(0.12)\n)\n.late(\"[0 .01]*2\")  // Reduced late effects\n.size(2.7)  // Smaller size for less reverb"
+    },
+    {
+      "id": "base_dynamic",
+      "chain": "base",
+      "timestamp": "2025-09-07 06:03:58",
+      "tempo": 104,
+      "instrument": "bass",
+      "effects": ".hpf(tri.range(100, 5000).slow(4)), .room(1.4), .size(0.3), .flanger(3), .delay(0.12)",
+      "code": "// Dynamic Blockchain Audio Pattern\n// Generated: 2025-09-07T06:03:58.105028\n// Chain: base\n// Activity: 78.1\n// Volatility: 62.3\n\nsetcps(1.73)\n\nstack(\n  // RHYTHMIC LAYER\n  stack(\n    s(\"bd ~ bd\").gain(0.87),\n    s(\"~ sd ~ sd\").gain(0.42),\n    s(\"hh*2\").gain(0.20)\n  ).bank('RolandTR909'),\n  \n  // LEAD MELODY\n  n(\"<72 74 75 77>\")\n  .scale(\"B:dorian\")\n  .s(\"gm_lead_3_calliope\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .jux(rev)\n  .room(1.1)\n  .lpf(rand.range(400, 16000).slow(6))\n  .hpf(saw.range(100, 5000).slow(3)).room(0.7).size(0.6),\n  \n  // BASS LINE\n  n(\"0 2 3 5\")\n  .scale(\"B:dorian\")\n  .s(\"gm_electric_bass_finger\")\n  .gain(0.48)\n  .lpf(608)\n  .room(0.7),\n  \n  // HARMONIC PAD\n  n(\"0 2 3 5\")\n  .scale(\"B:dorian\")\n  .s(\"gm_synth_pad_2_warm\")\n  .gain(0.43)\n  .room(0.7)  // Reduced reverb\n  .shape(0.3)  // Less shape\n  .delay(0.13)  // Much less delay\n  .size(0.6).flanger(6).delay(0.06)\n)\n.late(\"[0 .01]*2\")  // Reduced late effects\n.size(1.8)  // Smaller size for less reverb"
+    },
+    {
+      "id": "multi_chain_dynamic",
+      "chain": "multi",
+      "timestamp": "2025-09-07 06:03:58",
+      "tempo": 111,
+      "instrument": "orchestra",
+      "effects": ".lpf(saw.range(200, 20000).slow(7)), .room(1.7), .size(0.7), .chorus(3), .delay(0.11)",
+      "code": "// Multi-Chain Dynamic Track\n// Chains: ethereum, optimism, polygon, base\n// Generated: 2025-09-07T06:03:58.105135\n\nsetcps(1.86)\n\nstack(\n\n  // ethereum chain\n  stack(\n    s(\"bd ~ bd\").gain(0.55),\n    n(\"<60 62 63 65>\")\n    .scale(\"B:minor\")\n    .s(\"gm_lead_3_calliope\")\n    .clip(perlin.range(0.1, 1.0).slow(2))\n    .gain(0.37)\n    .room(1.3)\n  )\n  // optimism chain\n  stack(\n    s(\"bd ~ bd\").gain(0.67),\n    n(\"<72 74 75 77>\")\n    .scale(\"B:dorian\")\n    .s(\"gm_lead_6_voice\")\n    .clip(perlin.range(0.1, 1.0).slow(2))\n    .gain(0.48)\n    .room(1.2)\n  )\n  // polygon chain\n  stack(\n    s(\"bd ~ bd\").gain(0.64),\n    n(\"<72 74 76 77>\")\n    .scale(\"B:mixolydian\")\n    .s(\"gm_lead_6_voice\")\n    .clip(rand.range(0.2, 0.8).slow(3))\n    .gain(0.63)\n    .room(1.3)\n  )\n  // base chain\n  stack(\n    s(\"bd ~ bd\").gain(0.41),\n    n(\"<72 74 75 77>\")\n    .scale(\"B:dorian\")\n    .s(\"gm_lead_2_sawtooth\")\n    .clip(perlin.range(0.1, 1.0).slow(2))\n    .gain(0.36)\n    .room(0.9)\n  ),\n  \n  // Combined harmonic layer\n  n(\"0 2 3 5\")\n  .scale(\"B:mixolydian\")\n  .s(\"gm_synth_pad_3_polysynth\")\n  .gain(0.35)\n  .room(3.2)\n  .shape(0.5)\n  .delay(0.51)\n)\n.late(\"[0 .01]*4\")\n.size(6.5)"
+    },
+    {
+      "id": "ethereum_experimental_1757217850",
+      "chain": "ethereum",
+      "timestamp": "2025-09-07 06:04:10",
+      "tempo": 120,
+      "instrument": "synthesizer",
+      "effects": "experimental",
+      "code": "// Experimental Blockchain Audio Pattern\n// Generated: 2025-09-07T06:04:10.050752\n// Chain: ethereum\n// Pattern Type: experimental\n\nsetcps(1.62)\n\nstack(\n  // Complex rhythmic foundation\n  stack(\n    s(\"bd ~ bd\").struct(\"<[x*<1 2> [~@3 x]] x>\"),\n    s(\"~ [rim, sd:<2 3>]\").room(\"<0 .2>\"),\n    n(\"[0 <1 3>]*<2!3 4>\").s(\"hh\"),\n    s(\"rd:<1!3 2>*2\").mask(\"<0 0 1 1>/16\").gain(.5)\n  ).bank('RolandTR909')\n  .mask(\"<[0 1] 1 1 1>/16\".early(.5)),\n  \n  // Lead melody with complex modulation\n  n(\"<60 62 63 65>\")\n  .scale(\"B:minor\")\n  .s(\"gm_lead_6_voice\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .jux(rev)\n  .room(1.4)\n  .lpf(rand.range(400, 16000).slow(6))\n  .phaser(8)\n  .shape(0.4),\n  \n  // Bass line with rhythmic variation\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")\n  .s(\"gm_acoustic_bass\")\n  .gain(0.60)\n  .lpf(229),\n  \n  // Harmonic pad with texture\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")\n  .s(\"gm_synth_pad_2_warm\")\n  .gain(0.44)\n  .room(0.9)  // Reduced reverb\n  .shape(0.3)  // Less shape\n  .delay(0.09)  // Much less delay\n  .fm(sine.range(3, 8).slow(8))\n  .lpf(sine.range(500, 1000).slow(8)).lpq(5)\n  .rarely(ply(\"2\")).chunk(4, fast(2))\n  .gain(perlin.range(.6, .9))\n  .mask(\"<0 1 1 0>/16\")\n)\n.late(\"[0 .01]*2\")  // Reduced late effects\n.size(2.0)  // Smaller size for less reverb"
+    },
+    {
+      "id": "multi_chain_dynamic_experimental_1757217856",
+      "chain": "multi_dynamic",
+      "timestamp": "2025-09-07 06:04:16",
+      "tempo": 111,
+      "instrument": "orchestra",
+      "effects": "experimental dynamic jam",
+      "code": "// Multi-Chain Dynamic Jam Session - Experimental\n// Generated: 2025-09-07T06:04:16.929015\n// Ethereum: Lead | Optimism: Harmony | Polygon: Percussion | Base: Bass\n\nsetcps(1.85)\n\nstack(\n  // \ud83e\udd41 COLLABORATIVE RHYTHM SECTION\n  // Each chain contributes unique rhythmic elements\n  s(\"bd ~ bd\").gain(0.81).room(0.2),\n  s(\"~ sd ~ sd\").gain(0.70).room(0.3),\n  s(\"hh*2\").gain(0.40).room(0.1),\n  s(\"bd ~ bd\").gain(0.66).room(0.2),\n  \n  // \ud83c\udfb9 ETHEREUM - Lead Melody (Dynamic interpolation)\n  n(\"<60 62 63 65>\")\n  .scale(\"B:minor\")\n  .s(\"gm_lead_6_voice\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .jux(rev)\n  .room(1.6)\n  .lpf(rand.range(400, 16000).slow(6))\n  .gain(0.63)\n  .hpf(sine.range(100, 5000).slow(3)).room(1.9).size(0.7),\n  \n  // \ud83c\udfbc OPTIMISM - Harmony Layer (Dynamic interpolation)\n  n(\"<72 74 75 77>\")\n  .scale(\"B:minor\")  // Use shared scale\n  .s(\"gm_lead_3_calliope\")\n  .clip(perlin.range(0.1, 1.0).slow(2))\n  .room(0.9)\n  .lpf(rand.range(400, 16000).slow(6))\n  .gain(0.67)\n  .hpf(sine.range(100, 5000).slow(6)).room(0.8),\n  \n  // \ud83c\udfb8 BASE - Bass Foundation (Dynamic interpolation)\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")  // Use shared scale\n  .s(\"gm_acoustic_bass\")\n  .gain(0.74)\n  .lpf(578)\n  .room(0.5)\n  .hpf(sine.range(100, 5000).slow(3)).room(0.6),\n  \n  // \ud83c\udf9b\ufe0f POLYGON - Percussion & Texture (Dynamic interpolation)\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")  // Use shared scale\n  .s(\"gm_synth_pad_2_warm\")\n  .gain(0.33)\n  .room(0.7)\n  .shape(0.4)\n  .delay(0.13)\n  .lpf(cosine.range(250, 14000).slow(4))\n  .lpf(perlin.range(200, 20000).slow(4)).room(0.9),\n  \n  // \ud83c\udfbc COLLABORATIVE HARMONIC LAYER\n  // All chains contribute to the harmony with dynamic interpolation\n  n(\"0 2 3 5\")\n  .scale(\"B:minor\")\n  .s(\"gm_synth_strings_2\")\n  .gain(0.25)\n  .room(0.8)\n  .shape(0.2)\n  .delay(0.05)\n  \n  // \ud83c\udfb5 INTERACTIVE ELEMENTS - Chains respond to each other\n  .mask(\"<0 1 1 0>/8\")  // Ethereum leads\n  .mask(\"<1 0 0 1>/8\")  // Optimism responds\n  .mask(\"<0 0 1 1>/8\")  // Polygon adds texture\n  .mask(\"<1 1 0 0>/8\")  // Base provides foundation\n)\n.late(\"[0 .01]*2\")\n.size(3.7)"
+    }
+  ],
+  "generated_at": "2025-09-07T06:04:16.929921"
+}

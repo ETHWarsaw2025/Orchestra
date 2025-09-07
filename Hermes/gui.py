@@ -6,9 +6,14 @@ Everything in one file with Strudel player embedded
 
 import sys
 import json
+import random
 import webbrowser
 from datetime import datetime
 from typing import List, Optional
+
+# Import our custom modules
+from strudel_generator import StrudelGenerator
+from models import AnalyzedMetric, ChainInstrument
 
 # Try to import PyQt6 with WebEngine
 try:
@@ -55,6 +60,7 @@ class GolemBlockchainGUI(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        self.strudel_generator = StrudelGenerator()
         self.setup_status_bar()
         self.setup_menu()
         self.init_ui()
@@ -115,7 +121,7 @@ class GolemBlockchainGUI(QMainWindow):
         control_panel.addWidget(self.refresh_btn)
         
         self.chain_combo = QComboBox()
-        self.chain_combo.addItems(["ethereum", "bitcoin", "polygon"])
+        self.chain_combo.addItems(["ethereum", "optimism", "polygon", "base"])
         self.chain_combo.currentTextChanged.connect(self.update_blockchain_display)
         control_panel.addWidget(QLabel("Chain:"))
         control_panel.addWidget(self.chain_combo)
@@ -232,6 +238,29 @@ class GolemBlockchainGUI(QMainWindow):
         
         player_controls.addStretch()
         strudel_layout.addLayout(player_controls)
+        
+        # Pattern generation controls
+        generation_controls = QHBoxLayout()
+        
+        # Pattern type selection
+        generation_controls.addWidget(QLabel("Pattern Type:"))
+        self.pattern_type_combo = QComboBox()
+        self.pattern_type_combo.addItems(["basic", "experimental", "minimal"])
+        self.pattern_type_combo.setCurrentText("experimental")
+        generation_controls.addWidget(self.pattern_type_combo)
+        
+        # Generate new pattern button
+        self.generate_pattern_btn = QPushButton("🎼 Generate New Pattern")
+        self.generate_pattern_btn.clicked.connect(self.generate_new_pattern)
+        generation_controls.addWidget(self.generate_pattern_btn)
+        
+        # Multi-chain pattern button
+        self.multi_chain_btn = QPushButton("🔗 Multi-Chain Pattern")
+        self.multi_chain_btn.clicked.connect(self.generate_multi_chain_pattern)
+        generation_controls.addWidget(self.multi_chain_btn)
+        
+        generation_controls.addStretch()
+        strudel_layout.addLayout(generation_controls)
         
         # Integrated web browser for Strudel
         if WEBENGINE_AVAILABLE:
@@ -382,13 +411,13 @@ class GolemBlockchainGUI(QMainWindow):
                 "blocks": 19500000,
                 "volatility": 3.07
             },
-            "bitcoin": {
-                "price": 45000.0,
-                "volume": 10000000000,
-                "gas_fee": 50.0,
-                "transactions": 2000,
-                "blocks": 800000,
-                "volatility": 5.05
+            "optimism": {
+                "price": 2.85,
+                "volume": 800000000,
+                "gas_fee": 0.001,
+                "transactions": 120,
+                "blocks": 12000000,
+                "volatility": 4.2
             },
             "polygon": {
                 "price": 0.8,
@@ -397,46 +426,514 @@ class GolemBlockchainGUI(QMainWindow):
                 "transactions": 5000,
                 "blocks": 50000000,
                 "volatility": 6.94
+            },
+            "base": {
+                "price": 0.0003,
+                "volume": 300000000,
+                "gas_fee": 0.002,
+                "transactions": 200,
+                "blocks": 8000000,
+                "volatility": 5.8
             }
         }
         
-        self.strudel_tracks = [
-            {
-                "id": "blockchain_symphony",
-                "chain": "all",
-                "timestamp": "2024-01-01 12:00:00",
-                "tempo": 120,
-                "instrument": "orchestra",
-                "effects": "full",
-                "code": self.generate_blockchain_symphony()
-            }
-        ]
+        # Create AnalyzedMetric objects for the dynamic generator
+        self.analyzed_metrics = {
+            "ethereum": AnalyzedMetric(
+                chain_name="ethereum",
+                timestamp=datetime.now(),
+                price_change_percentage=15.5,
+                gas_fee_trend=25.3,
+                transaction_volume_change=40.2,
+                block_production_rate=150.0,
+                network_activity_score=75.8,
+                volatility_index=65.2,
+                liquidity_score=80.1
+            ),
+            "optimism": AnalyzedMetric(
+                chain_name="optimism",
+                timestamp=datetime.now(),
+                price_change_percentage=22.3,
+                gas_fee_trend=45.1,
+                transaction_volume_change=65.7,
+                block_production_rate=180.0,
+                network_activity_score=82.4,
+                volatility_index=58.9,
+                liquidity_score=75.3
+            ),
+            "polygon": AnalyzedMetric(
+                chain_name="polygon",
+                timestamp=datetime.now(),
+                price_change_percentage=30.1,
+                gas_fee_trend=55.8,
+                transaction_volume_change=80.3,
+                block_production_rate=250.0,
+                network_activity_score=88.7,
+                volatility_index=70.5,
+                liquidity_score=85.4
+            ),
+            "base": AnalyzedMetric(
+                chain_name="base",
+                timestamp=datetime.now(),
+                price_change_percentage=18.7,
+                gas_fee_trend=35.2,
+                transaction_volume_change=55.9,
+                block_production_rate=200.0,
+                network_activity_score=78.1,
+                volatility_index=62.3,
+                liquidity_score=82.7
+            )
+        }
+        
+        # Create ChainInstrument objects
+        self.chain_instruments = {
+            "ethereum": ChainInstrument(
+                chain_name="ethereum",
+                instrument_type="synthesizer",
+                rpc_node_url="https://mainnet.infura.io/v3/your-key",
+                sound_profile="gm_synth_lead",
+                created_at=datetime.now()
+            ),
+            "optimism": ChainInstrument(
+                chain_name="optimism",
+                instrument_type="lead",
+                rpc_node_url="https://optimism-mainnet.infura.io/v3/your-key",
+                sound_profile="gm_lead_6_voice",
+                created_at=datetime.now()
+            ),
+            "polygon": ChainInstrument(
+                chain_name="polygon",
+                instrument_type="drum",
+                rpc_node_url="https://polygon-rpc.com",
+                sound_profile="RolandTR909",
+                created_at=datetime.now()
+            ),
+            "base": ChainInstrument(
+                chain_name="base",
+                instrument_type="bass",
+                rpc_node_url="https://mainnet.base.org",
+                sound_profile="gm_acoustic_bass",
+                created_at=datetime.now()
+            )
+        }
+        
+        # Generate initial tracks using the dynamic generator
+        self.strudel_tracks = []
+        
+        # Generate a track for each chain
+        for chain_name in ["ethereum", "optimism", "polygon", "base"]:
+            metric = self.analyzed_metrics[chain_name]
+            instrument = self.chain_instruments[chain_name]
+            
+            # Generate basic track
+            track = self.strudel_generator.generate_track(metric, instrument)
+            self.strudel_tracks.append({
+                "id": f"{chain_name}_dynamic",
+                "chain": chain_name,
+                "timestamp": track.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                "tempo": track.musical_parameters.tempo,
+                "instrument": track.musical_parameters.instrument_type,
+                "effects": ", ".join(track.musical_parameters.effects) if track.musical_parameters.effects else "none",
+                "code": track.strudel_code_string,
+                "track_obj": track
+            })
+        
+        # Generate multi-chain track
+        multi_track = self.strudel_generator.generate_multi_chain_track(
+            list(self.analyzed_metrics.values()),
+            list(self.chain_instruments.values())
+        )
+        self.strudel_tracks.append({
+            "id": "multi_chain_dynamic",
+            "chain": "multi",
+            "timestamp": multi_track.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            "tempo": multi_track.musical_parameters.tempo,
+            "instrument": "orchestra",
+            "effects": ", ".join(multi_track.musical_parameters.effects) if multi_track.musical_parameters.effects else "none",
+            "code": multi_track.strudel_code_string,
+            "track_obj": multi_track
+        })
         
         self.orchestra_data = [
             {
                 "chain": "ethereum",
-                "instrument": "guitar",
-                "rpc_url": "https://lb.drpc.org/sepolia/AplHGB2v9khYpYVNxc5za0FxucDEi1sR8IqgqhnKxixj",
-                "sound_profile": "moog"
+                "instrument": "synthesizer",
+                "rpc_url": "https://mainnet.infura.io/v3/your-key",
+                "sound_profile": "gm_synth_lead"
             },
             {
-                "chain": "bitcoin",
-                "instrument": "drum",
-                "rpc_url": "https://blockstream.info/api/",
-                "sound_profile": "bd"
+                "chain": "optimism",
+                "instrument": "lead",
+                "rpc_url": "https://optimism-mainnet.infura.io/v3/your-key",
+                "sound_profile": "gm_lead_6_voice"
             },
             {
                 "chain": "polygon",
+                "instrument": "drum",
+                "rpc_url": "https://polygon-rpc.com",
+                "sound_profile": "RolandTR909"
+            },
+            {
+                "chain": "base",
                 "instrument": "bass",
-                "rpc_url": "https://polygon-mainnet.g.alchemy.com/v2/YOUR_API_KEY",
-                "sound_profile": "gm_synth_bass_1"
+                "rpc_url": "https://mainnet.base.org",
+                "sound_profile": "gm_acoustic_bass"
             }
         ]
         
+        # Save data to JSON file
+        self.save_data_to_json()
+        
         self.update_all_displays()
     
+    def save_data_to_json(self):
+        """Save all blockchain data and tracks to JSON file"""
+        try:
+            data_to_save = {
+                "blockchain_data": self.blockchain_data,
+                "analyzed_metrics": {
+                    chain: {
+                        "chain_name": metric.chain_name,
+                        "timestamp": metric.timestamp.isoformat(),
+                        "price_change_percentage": metric.price_change_percentage,
+                        "gas_fee_trend": metric.gas_fee_trend,
+                        "transaction_volume_change": metric.transaction_volume_change,
+                        "block_production_rate": metric.block_production_rate,
+                        "network_activity_score": metric.network_activity_score,
+                        "volatility_index": metric.volatility_index,
+                        "liquidity_score": metric.liquidity_score
+                    }
+                    for chain, metric in self.analyzed_metrics.items()
+                },
+                "chain_instruments": {
+                    chain: {
+                        "chain_name": instrument.chain_name,
+                        "instrument_type": instrument.instrument_type,
+                        "rpc_node_url": instrument.rpc_node_url,
+                        "sound_profile": instrument.sound_profile,
+                        "created_at": instrument.created_at.isoformat()
+                    }
+                    for chain, instrument in self.chain_instruments.items()
+                },
+                "strudel_tracks": [
+                    {
+                        "id": track["id"],
+                        "chain": track["chain"],
+                        "timestamp": track["timestamp"],
+                        "tempo": track["tempo"],
+                        "instrument": track["instrument"],
+                        "effects": track["effects"],
+                        "code": track["code"]
+                    }
+                    for track in self.strudel_tracks
+                ],
+                "generated_at": datetime.now().isoformat()
+            }
+            
+            with open("blockchain_audio_data.json", "w") as f:
+                json.dump(data_to_save, f, indent=2)
+                
+            print("✅ Data saved to blockchain_audio_data.json")
+            
+        except Exception as e:
+            print(f"❌ Error saving data to JSON: {e}")
+    
+    def generate_new_pattern(self):
+        """Generate a new pattern using the dynamic generator"""
+        current_chain = self.chain_combo.currentText()
+        pattern_type = self.pattern_type_combo.currentText()
+        
+        if current_chain not in self.analyzed_metrics:
+            QMessageBox.warning(self, "Warning", "Please select a valid chain first.")
+            return
+        
+        try:
+            metric = self.analyzed_metrics[current_chain]
+            instrument = self.chain_instruments[current_chain]
+            
+            # Generate pattern based on type
+            if pattern_type == "basic":
+                track = self.strudel_generator.generate_track(metric, instrument)
+                code = track.strudel_code_string
+            else:
+                code = self.strudel_generator.generate_advanced_pattern(metric, instrument, pattern_type)
+            
+            # Create new track entry
+            new_track = {
+                "id": f"{current_chain}_{pattern_type}_{int(datetime.now().timestamp())}",
+                "chain": current_chain,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "tempo": 120,  # Will be updated from generated pattern
+                "instrument": instrument.instrument_type,
+                "effects": pattern_type,
+                "code": code
+            }
+            
+            # Add to tracks list
+            self.strudel_tracks.append(new_track)
+            
+            # Update display
+            self.update_strudel_tracks()
+            
+            # Select the new track
+            self.tracks_table.selectRow(len(self.strudel_tracks) - 1)
+            self.load_track_code(new_track)
+            
+            self.status_bar.showMessage(f"Generated new {pattern_type} pattern for {current_chain}")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to generate pattern: {str(e)}")
+    
+    def generate_multi_chain_pattern(self):
+        """Generate a multi-chain jam session using the same dynamic interpolation as single-chain"""
+        try:
+            pattern_type = self.pattern_type_combo.currentText()
+            
+            # Get all chain data
+            ethereum_metric = self.analyzed_metrics["ethereum"]
+            optimism_metric = self.analyzed_metrics["optimism"]
+            polygon_metric = self.analyzed_metrics["polygon"]
+            base_metric = self.analyzed_metrics["base"]
+            
+            ethereum_instrument = self.chain_instruments["ethereum"]
+            optimism_instrument = self.chain_instruments["optimism"]
+            polygon_instrument = self.chain_instruments["polygon"]
+            base_instrument = self.chain_instruments["base"]
+            
+            # Calculate collaborative tempo based on all chains using the same interpolation
+            eth_tempo = int(self.strudel_generator._map_to_range(
+                self.strudel_generator._normalize_value(abs(ethereum_metric.price_change_percentage), 0, 50), 60, 180
+            ))
+            opt_tempo = int(self.strudel_generator._map_to_range(
+                self.strudel_generator._normalize_value(abs(optimism_metric.price_change_percentage), 0, 50), 60, 180
+            ))
+            poly_tempo = int(self.strudel_generator._map_to_range(
+                self.strudel_generator._normalize_value(abs(polygon_metric.price_change_percentage), 0, 50), 60, 180
+            ))
+            base_tempo = int(self.strudel_generator._map_to_range(
+                self.strudel_generator._normalize_value(abs(base_metric.price_change_percentage), 0, 50), 60, 180
+            ))
+            
+            avg_tempo = int((eth_tempo + opt_tempo + poly_tempo + base_tempo) / 4)
+            
+            # Generate dynamic patterns for each chain using the same interpolation methods
+            eth_rhythmic = self.strudel_generator._generate_rhythmic_pattern(ethereum_metric)
+            eth_melodic = self.strudel_generator._generate_melodic_pattern(ethereum_metric)
+            eth_harmonic = self.strudel_generator._generate_harmonic_pattern(ethereum_metric)
+            eth_textural = self.strudel_generator._generate_textural_pattern(ethereum_metric)
+            eth_effects = self.strudel_generator._generate_effects_chain(ethereum_metric)
+            
+            opt_rhythmic = self.strudel_generator._generate_rhythmic_pattern(optimism_metric)
+            opt_melodic = self.strudel_generator._generate_melodic_pattern(optimism_metric)
+            opt_harmonic = self.strudel_generator._generate_harmonic_pattern(optimism_metric)
+            opt_textural = self.strudel_generator._generate_textural_pattern(optimism_metric)
+            opt_effects = self.strudel_generator._generate_effects_chain(optimism_metric)
+            
+            poly_rhythmic = self.strudel_generator._generate_rhythmic_pattern(polygon_metric)
+            poly_melodic = self.strudel_generator._generate_melodic_pattern(polygon_metric)
+            poly_harmonic = self.strudel_generator._generate_harmonic_pattern(polygon_metric)
+            poly_textural = self.strudel_generator._generate_textural_pattern(polygon_metric)
+            poly_effects = self.strudel_generator._generate_effects_chain(polygon_metric)
+            
+            base_rhythmic = self.strudel_generator._generate_rhythmic_pattern(base_metric)
+            base_melodic = self.strudel_generator._generate_melodic_pattern(base_metric)
+            base_harmonic = self.strudel_generator._generate_harmonic_pattern(base_metric)
+            base_textural = self.strudel_generator._generate_textural_pattern(base_metric)
+            base_effects = self.strudel_generator._generate_effects_chain(base_metric)
+            
+            # Create a truly collaborative jam session with dynamic interpolation
+            if pattern_type == "experimental":
+                combined_code = f"""// Multi-Chain Dynamic Jam Session - {pattern_type.title()}
+// Generated: {datetime.now().isoformat()}
+// Ethereum: Lead | Optimism: Harmony | Polygon: Percussion | Base: Bass
+
+setcps({avg_tempo/60:.2f})
+
+stack(
+  // 🥁 COLLABORATIVE RHYTHM SECTION
+  // Each chain contributes unique rhythmic elements
+  s("{eth_rhythmic['kick']}").gain({random.uniform(0.7, 1.0):.2f}).room(0.2),
+  s("{opt_rhythmic['snare']}").gain({random.uniform(0.5, 0.8):.2f}).room(0.3),
+  s("{poly_rhythmic['hihat']}").gain({random.uniform(0.3, 0.6):.2f}).room(0.1),
+  s("{base_rhythmic['kick']}").gain({random.uniform(0.4, 0.7):.2f}).room(0.2),
+  
+  // 🎹 ETHEREUM - Lead Melody (Dynamic interpolation)
+  n("{eth_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_lead_6_voice")
+  .clip({eth_textural['texture']})
+  .jux(rev)
+  .room({random.uniform(0.5, 2.0):.1f})
+  .lpf({eth_textural['modulation']})
+  .gain({random.uniform(0.6, 0.9):.2f})
+  {''.join(eth_effects[:3])},
+  
+  // 🎼 OPTIMISM - Harmony Layer (Dynamic interpolation)
+  n("{opt_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")  // Use shared scale
+  .s("gm_lead_3_calliope")
+  .clip({opt_textural['texture']})
+  .room({random.uniform(0.4, 1.5):.1f})
+  .lpf({opt_textural['modulation']})
+  .gain({random.uniform(0.4, 0.7):.2f})
+  {''.join(opt_effects[:2])},
+  
+  // 🎸 BASE - Bass Foundation (Dynamic interpolation)
+  n("{base_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")  // Use shared scale
+  .s("gm_acoustic_bass")
+  .gain({random.uniform(0.5, 0.8):.2f})
+  .lpf({random.randint(200, 600)})
+  .room({random.uniform(0.3, 0.8):.1f})
+  {''.join(base_effects[:2])},
+  
+  // 🎛️ POLYGON - Percussion & Texture (Dynamic interpolation)
+  n("{poly_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")  // Use shared scale
+  .s("gm_synth_pad_2_warm")
+  .gain({random.uniform(0.2, 0.5):.2f})
+  .room({random.uniform(0.6, 1.2):.1f})
+  .shape({random.uniform(0.2, 0.5):.1f})
+  .delay({random.uniform(0.05, 0.15):.2f})
+  .lpf({poly_textural['modulation']})
+  {''.join(poly_effects[:2])},
+  
+  // 🎼 COLLABORATIVE HARMONIC LAYER
+  // All chains contribute to the harmony with dynamic interpolation
+  n("{eth_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_synth_strings_2")
+  .gain({random.uniform(0.1, 0.3):.2f})
+  .room({random.uniform(0.8, 1.5):.1f})
+  .shape({random.uniform(0.2, 0.4):.1f})
+  .delay({random.uniform(0.03, 0.08):.2f})
+  
+  // 🎵 INTERACTIVE ELEMENTS - Chains respond to each other
+  .mask("<0 1 1 0>/8")  // Ethereum leads
+  .mask("<1 0 0 1>/8")  // Optimism responds
+  .mask("<0 0 1 1>/8")  // Polygon adds texture
+  .mask("<1 1 0 0>/8")  // Base provides foundation
+)
+.late("[0 .01]*2")
+.size({random.uniform(2.0, 4.0):.1f})
+"""
+            
+            elif pattern_type == "minimal":
+                combined_code = f"""// Multi-Chain Minimal Jam - {pattern_type.title()}
+// Generated: {datetime.now().isoformat()}
+// Clean collaboration with dynamic interpolation
+
+setcps({avg_tempo/60:.2f})
+
+stack(
+  // 🥁 MINIMAL RHYTHM
+  s("{eth_rhythmic['kick']}").gain({random.uniform(0.8, 1.0):.2f}),
+  s("{opt_rhythmic['snare']}").gain({random.uniform(0.4, 0.6):.2f}),
+  
+  // 🎹 ETHEREUM - Lead
+  n("{eth_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_lead_3_calliope")
+  .gain({random.uniform(0.5, 0.7):.2f})
+  .room({random.uniform(0.4, 0.8):.1f}),
+  
+  // 🎼 OPTIMISM - Harmony
+  n("{opt_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_lead_6_voice")
+  .gain({random.uniform(0.3, 0.5):.2f})
+  .room({random.uniform(0.3, 0.6):.1f}),
+  
+  // 🎸 BASE - Bass
+  n("{base_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_acoustic_bass")
+  .gain({random.uniform(0.4, 0.6):.2f})
+  .lpf({random.randint(250, 400)}),
+  
+  // 🎛️ POLYGON - Pad
+  n("{poly_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_synth_pad_2_warm")
+  .gain({random.uniform(0.2, 0.4):.2f})
+  .room({random.uniform(0.5, 0.9):.1f})
+)
+"""
+            
+            else:  # basic
+                combined_code = f"""// Multi-Chain Basic Jam - {pattern_type.title()}
+// Generated: {datetime.now().isoformat()}
+// Simple collaboration with dynamic interpolation
+
+setcps({avg_tempo/60:.2f})
+
+stack(
+  // 🥁 BASIC RHYTHM
+  s("{eth_rhythmic['kick']}").gain({random.uniform(0.7, 0.9):.2f}),
+  s("{opt_rhythmic['snare']}").gain({random.uniform(0.5, 0.7):.2f}),
+  s("{poly_rhythmic['hihat']}").gain({random.uniform(0.3, 0.5):.2f}),
+  
+  // 🎹 ETHEREUM - Lead
+  n("{eth_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_lead_6_voice")
+  .gain({random.uniform(0.6, 0.8):.2f})
+  .room({random.uniform(0.5, 1.0):.1f}),
+  
+  // 🎼 OPTIMISM - Harmony
+  n("{opt_melodic['pattern']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_lead_3_calliope")
+  .gain({random.uniform(0.4, 0.6):.2f})
+  .room({random.uniform(0.4, 0.8):.1f}),
+  
+  // 🎸 BASE - Bass
+  n("{base_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_acoustic_bass")
+  .gain({random.uniform(0.5, 0.7):.2f})
+  .lpf({random.randint(300, 500)}),
+  
+  // 🎛️ POLYGON - Pad
+  n("{poly_harmonic['chord_progression']}")
+  .scale("{eth_melodic['scale']}")
+  .s("gm_synth_pad_2_warm")
+  .gain({random.uniform(0.3, 0.5):.2f})
+  .room({random.uniform(0.6, 1.0):.1f})
+  .shape({random.uniform(0.2, 0.4):.1f})
+)
+"""
+            
+            # Create new track entry
+            new_track = {
+                "id": f"multi_chain_dynamic_{pattern_type}_{int(datetime.now().timestamp())}",
+                "chain": "multi_dynamic",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "tempo": avg_tempo,
+                "instrument": "orchestra",
+                "effects": f"{pattern_type} dynamic jam",
+                "code": combined_code.strip(),
+                "track_obj": None
+            }
+            
+            # Add to tracks list
+            self.strudel_tracks.append(new_track)
+            
+            # Update display and save data
+            self.update_strudel_tracks()
+            self.save_data_to_json()
+            
+            # Select the new track
+            self.tracks_table.selectRow(len(self.strudel_tracks) - 1)
+            self.load_track_code(new_track)
+            
+            self.status_bar.showMessage(f"Generated multi-chain dynamic jam - {pattern_type} (tempo: {avg_tempo} BPM)")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to generate multi-chain jam: {str(e)}")
+    
     def generate_blockchain_symphony(self):
-        """Generate a symphony that combines all blockchain data into one musical composition"""
+        """Generate a symphony that combines all blockchain data into one musical composition (legacy method)"""
         ethereum_data = self.blockchain_data["ethereum"]
         bitcoin_data = self.blockchain_data["bitcoin"]
         polygon_data = self.blockchain_data["polygon"]
