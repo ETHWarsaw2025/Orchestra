@@ -76,7 +76,7 @@ The GUI provides a user-friendly interface to the core pipeline:
 - Monitor network activity across chains
 
 ### **Blockchain Symphony Tab**
-- Generate individual chain patterns (Ethereum, Optimism, Polygon, Base)
+- Generate individual chain patterns for each blockchain
 - Create multi-chain symphonies
 - Play patterns in embedded Strudel player
 - Manage and organize generated tracks
@@ -103,11 +103,11 @@ The GUI provides a user-friendly interface to the core pipeline:
 
 The system comes pre-configured with these blockchain-instrument mappings:
 
-- **Ethereum** → Guitar (Moog sound profile)
-- **Bitcoin** → Drum (BD sound profile)  
-- **Polygon** → Bass (GM Synth Bass sound profile)
-- **Optimism** → Lead (Sawtooth sound profile)
-- **Base** → Lead (Calliope sound profile)
+- **Blockchain A** → Guitar (Moog sound profile)
+- **Blockchain B** → Drum (BD sound profile)  
+- **Blockchain C** → Bass (GM Synth Bass sound profile)
+- **Blockchain D** → Lead (Sawtooth sound profile)
+- **Blockchain E** → Lead (Calliope sound profile)
 
 ## 🎵 Generated Strudel Code
 
@@ -166,7 +166,7 @@ The system generates dynamic Strudel patterns based on blockchain KPIs:
 ```javascript
 // Dynamic Blockchain Audio Pattern
 // Generated: 2025-09-07T10:40:16.141959
-// Chain: ethereum
+// Chain: blockchain_a
 // Activity: 75.5
 // Volatility: 3.2
 
@@ -227,14 +227,14 @@ The system provides detailed analysis of:
 - **Decentralized Storage**: All data stored on Golem network
 - **Real-time Analysis**: Live blockchain data processing
 - **Dynamic Music Generation**: KPIs directly influence musical output
-- **Multi-chain Support**: Analyze multiple blockchains simultaneously
+- **Multi-chain Support**: Analyze multiple blockchain networks simultaneously
 - **Historical Tracking**: Store and analyze historical patterns
-- **Extensible Architecture**: Easy to add new blockchains and instruments
+- **Extensible Architecture**: Easy to add new blockchain networks and instruments
 - **GUI Interface**: User-friendly PyQt6 frontend for easy interaction
 
 ## 🛠️ Development
 
-### Adding New Blockchains
+### Adding New Blockchain Networks
 
 1. Add entry to `orchestra_table` in `orchestrator.py`
 2. Implement blockchain client methods in `blockchain_client.py`
@@ -255,8 +255,8 @@ The system provides detailed analysis of:
 ## 📈 Output
 
 The system generates:
-- **Individual tracks** for each blockchain (via `generate_track()`)
-- **Multi-chain tracks** combining all blockchains (via `generate_multi_chain_track()`)
+- **Individual tracks** for each blockchain network (via `generate_track()`)
+- **Multi-chain tracks** combining all blockchain networks (via `generate_multi_chain_track()`)
 - **Advanced patterns** with experimental structures (via `generate_advanced_pattern()`)
 - **Historical analysis** of blockchain trends (via `DataAnalyzer`)
 - **Musical patterns** that reflect network activity (via `StrudelGenerator`)
