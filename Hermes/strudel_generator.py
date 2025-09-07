@@ -18,11 +18,6 @@ class StrudelGenerator:
         self.scales = {
             'major': [0, 2, 4, 5, 7, 9, 11],
             'minor': [0, 2, 3, 5, 7, 8, 10],
-            'dorian': [0, 2, 3, 5, 7, 9, 10],
-            'mixolydian': [0, 2, 4, 5, 7, 9, 10],
-            'phrygian': [0, 1, 3, 5, 7, 8, 10],
-            'lydian': [0, 2, 4, 6, 7, 9, 11],
-            'locrian': [0, 1, 3, 5, 6, 8, 10]
         }
         
         # Root notes
@@ -417,86 +412,185 @@ stack(
             created_at=datetime.now()
         )
     
-    def generate_multi_chain_track(self, analyzed_metrics: List[AnalyzedMetric], instruments: List[ChainInstrument]) -> StrudelTrack:
-        """Generate a dynamic track that combines multiple chains"""
+    def generate_multi_chain_track(self, analyzed_metrics: List[AnalyzedMetric], instruments: List[ChainInstrument], experimental_chain: str = None) -> StrudelTrack:
+        """Generate an experimental multi-chain track with optional chain selection"""
         
         if not analyzed_metrics or not instruments:
             raise ValueError("Need at least one analyzed metric and instrument")
         
-        # Use the most active chain as primary
-        primary_metric = max(analyzed_metrics, key=lambda x: x.network_activity_score)
-        primary_instrument = next((i for i in instruments if i.chain_name == primary_metric.chain_name), instruments[0])
-        
-        # Generate combined patterns from all chains
-        combined_patterns = []
-        for metric, instrument in zip(analyzed_metrics, instruments):
-            rhythmic = self._generate_rhythmic_pattern(metric)
-            melodic = self._generate_melodic_pattern(metric)
-            harmonic = self._generate_harmonic_pattern(metric)
-            textural = self._generate_textural_pattern(metric)
+        # If experimental_chain is specified, use that chain's pattern as the base
+        if experimental_chain:
+            # Find the specified chain
+            experimental_metric = next((m for m in analyzed_metrics if m.chain_name == experimental_chain), None)
+            experimental_instrument = next((i for i in instruments if i.chain_name == experimental_chain), None)
             
-            # Create chain-specific pattern
-            chain_pattern = f"""
-  // {metric.chain_name} chain
-  stack(
-    s("{rhythmic['kick']}").gain({random.uniform(0.4, 0.8):.2f}),
-    n("{melodic['pattern']}")
-    .scale("{melodic['scale']}")
-    .s("{random.choice(self.melodic_samples['lead'])}")
-    .clip({textural['texture']})
-    .gain({random.uniform(0.3, 0.7):.2f})
-    .room({random.uniform(0.5, 1.5):.1f})
-  )"""
-            combined_patterns.append(chain_pattern)
-        
-        # Calculate average tempo
-        avg_tempo = sum(int(self._map_to_range(self._normalize_value(abs(m.price_change_percentage), 0, 50), 60, 180)) for m in analyzed_metrics) / len(analyzed_metrics)
-        
-        # Generate combined strudel code
-        chain_names = [m.chain_name for m in analyzed_metrics]
-        combined_code = f"""// Multi-Chain Dynamic Track
-// Chains: {', '.join(chain_names)}
+            if experimental_metric and experimental_instrument:
+                # Generate the experimental pattern for the selected chain
+                experimental_track = self.generate_advanced_pattern(experimental_metric, experimental_instrument, "experimental")
+                
+                # Use this as the base and add other chains as supporting elements
+                base_code = experimental_track
+                
+                # Add supporting elements from other chains
+                supporting_elements = []
+                for metric, instrument in zip(analyzed_metrics, instruments):
+                    if metric.chain_name != experimental_chain:
+                        # Generate simple supporting pattern
+                        rhythmic = self._generate_rhythmic_pattern(metric)
+                        melodic = self._generate_melodic_pattern(metric)
+                        
+                        supporting_element = f"""  // {metric.chain_name.upper()} - Supporting
+  n("{melodic['pattern']}")
+  .scale("{melodic['scale']}")
+  .s("{random.choice(self.melodic_samples['lead'])}")
+  .gain({random.uniform(0.2, 0.5):.2f})
+  .room({random.uniform(0.3, 0.8):.1f})
+  .lpf({random.randint(200, 1000)}),"""
+                        
+                        supporting_elements.append(supporting_element)
+                
+                # Combine the experimental base with supporting elements
+                # Remove comma from last element
+                if supporting_elements:
+                    supporting_elements[-1] = supporting_elements[-1].rstrip(',')
+                
+                combined_code = f"""// Experimental Multi-Chain - {experimental_chain.upper()} Lead
 // Generated: {datetime.now().isoformat()}
+// Lead Chain: {experimental_chain}
+// Supporting: {', '.join([m.chain_name for m in analyzed_metrics if m.chain_name != experimental_chain])}
+
+{base_code}
+
+// Supporting chains
+stack(
+{chr(10).join(supporting_elements)}
+)"""
+                
+                # Calculate tempo from the experimental chain
+                experimental_tempo = int(self._map_to_range(
+                    self._normalize_value(abs(experimental_metric.price_change_percentage), 0, 50), 60, 180
+                ))
+                
+                # Create musical parameters
+                musical_params = MusicalParameters(
+                    tempo=experimental_tempo,
+                    base_note=f"{self.root_notes[random.randint(0, len(self.root_notes)-1)]}4",
+                    rhythm_pattern="experimental_multi_chain",
+                    gain=random.uniform(0.6, 0.9),
+                    sound_profile="experimental",
+                    scale=f"{self.root_notes[random.randint(0, len(self.root_notes)-1)]}:major",
+                    complexity=random.randint(7, 10),
+                    effects=self._generate_effects_chain(experimental_metric),
+                    instrument_type="experimental"
+                )
+                
+                track_id = f"multi_chain_experimental_{experimental_chain}_{int(datetime.now().timestamp())}"
+                
+                return StrudelTrack(
+                    id=track_id,
+                    timestamp=datetime.now(),
+                    chain_name="multi_chain_experimental",
+                    strudel_code_string=combined_code.strip(),
+                    source_kpis=experimental_metric,
+                    musical_parameters=musical_params,
+                    created_at=datetime.now()
+                )
+        
+        # Default: Generate individual tracks and combine them cleanly
+        individual_tracks = []
+        for metric, instrument in zip(analyzed_metrics, instruments):
+            track = self.generate_track(metric, instrument)
+            individual_tracks.append(track)
+        
+        # Calculate collaborative tempo
+        avg_tempo = sum(track.musical_parameters.tempo for track in individual_tracks) / len(individual_tracks)
+        
+        # Use the most active chain's scale
+        primary_track = max(individual_tracks, key=lambda x: x.source_kpis.network_activity_score)
+        primary_scale = primary_track.musical_parameters.scale
+        
+        # Extract individual chain patterns
+        chain_patterns = []
+        for track in individual_tracks:
+            # Parse the individual track code to extract the main pattern
+            code_lines = track.strudel_code_string.split('\n')
+            
+            # Find the stack section and extract the main melody
+            melody_start = None
+            melody_end = None
+            for j, line in enumerate(code_lines):
+                if '// LEAD MELODY' in line:
+                    melody_start = j
+                elif melody_start and line.strip().startswith('//'):
+                    melody_end = j
+                    break
+            
+            if melody_start and melody_end:
+                melody_lines = code_lines[melody_start:melody_end]
+                melody_code = '\n'.join(melody_lines).strip()
+                
+                # Create a clean chain section
+                chain_pattern = f"""  // {track.source_kpis.chain_name.upper()} - {track.musical_parameters.instrument_type.title()}
+  {melody_code}
+  .gain({random.uniform(0.4, 0.8):.2f})
+  .room({random.uniform(0.3, 0.7):.1f}),"""
+                
+                chain_patterns.append(chain_pattern)
+        
+        # Create collaborative harmonic layer
+        harmonic_pattern = self._generate_harmonic_pattern(primary_track.source_kpis)
+        harmonic_code = f"""  // COLLABORATIVE HARMONIC LAYER
+  n("{harmonic_pattern['chord_progression']}")
+  .scale("{primary_scale}")
+  .s("{random.choice(self.melodic_samples['pad'])}")
+  .gain({random.uniform(0.2, 0.4):.2f})
+  .room({random.uniform(0.8, 1.5):.1f})
+  .shape({random.uniform(0.2, 0.4):.1f})
+  .delay({random.uniform(0.05, 0.15):.2f})"""
+        
+        # Generate clean multi-chain code
+        chain_names = [m.chain_name for m in analyzed_metrics]
+        
+        # Remove comma from last chain pattern
+        if chain_patterns:
+            chain_patterns[-1] = chain_patterns[-1].rstrip(',')
+        
+        combined_code = f"""// Multi-Chain Collaborative Jam
+// Generated: {datetime.now().isoformat()}
+// Chains: {', '.join(chain_names)}
+// Each chain contributes its unique voice to the symphony
 
 setcps({avg_tempo/60:.2f})
 
 stack(
-{''.join(combined_patterns)},
+{chr(10).join(chain_patterns)},
   
-  // Combined harmonic layer
-  n("{self._generate_harmonic_pattern(primary_metric)['chord_progression']}")
-  .scale("{self._generate_melodic_pattern(primary_metric)['scale']}")
-  .s("{random.choice(self.melodic_samples['pad'])}")
-  .gain({random.uniform(0.2, 0.4):.2f})
-  .room({random.uniform(2.0, 4.0):.1f})
-  .shape({random.uniform(0.3, 0.7):.1f})
-  .delay({random.uniform(0.2, 0.6):.2f})
+{harmonic_code}
 )
-.late("[0 .01]*4")
-.size({random.uniform(3, 8):.1f})
-"""
+.late("[0 .01]*2")
+.size({random.uniform(2.0, 4.0):.1f})"""
         
-        # Create musical parameters for compatibility
+        # Create musical parameters
         musical_params = MusicalParameters(
             tempo=int(avg_tempo),
-            base_note=f"{self.root_notes[max(0, min(int(self._map_to_range(self._normalize_value(primary_metric.gas_fee_trend, -50, 50) + 0.5, 0, len(self.root_notes) - 1)), len(self.root_notes) - 1))]}4",
-            rhythm_pattern="multi_chain_dynamic",
-            gain=self._map_to_range(self._normalize_value(primary_metric.gas_fee_trend, -50, 50) + 0.5, 0.3, 0.9),
-            sound_profile=primary_instrument.sound_profile,
-            scale=f"{self.root_notes[max(0, min(int(self._map_to_range(self._normalize_value(abs(primary_metric.price_change_percentage), 0, 50), 0, len(self.root_notes) - 1)), len(self.root_notes) - 1))]}:{list(self.scales.keys())[max(0, min(int(self._map_to_range(self._normalize_value(abs(primary_metric.price_change_percentage), 0, 50), 0, len(self.scales) - 1)), len(self.scales) - 1))]}",
-            complexity=int(self._map_to_range(self._normalize_value(primary_metric.network_activity_score, 0, 100), 1, 10)),
-            effects=self._generate_effects_chain(primary_metric),
-            instrument_type=primary_instrument.instrument_type
+            base_note=primary_track.musical_parameters.base_note,
+            rhythm_pattern="multi_chain_collaborative",
+            gain=sum(track.musical_parameters.gain for track in individual_tracks) / len(individual_tracks),
+            sound_profile="orchestra",
+            scale=primary_scale,
+            complexity=int(sum(track.musical_parameters.complexity for track in individual_tracks) / len(individual_tracks)),
+            effects=primary_track.musical_parameters.effects,
+            instrument_type="orchestra"
         )
         
-        track_id = f"multi_chain_{int(datetime.now().timestamp())}"
+        track_id = f"multi_chain_collaborative_{int(datetime.now().timestamp())}"
         
         return StrudelTrack(
             id=track_id,
             timestamp=datetime.now(),
             chain_name="multi_chain",
             strudel_code_string=combined_code.strip(),
-            source_kpis=primary_metric,
+            source_kpis=primary_track.source_kpis,
             musical_parameters=musical_params,
             created_at=datetime.now()
         )

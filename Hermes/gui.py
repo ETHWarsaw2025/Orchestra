@@ -8,6 +8,7 @@ import sys
 import json
 import random
 import webbrowser
+import subprocess
 from datetime import datetime
 from typing import List, Optional
 
@@ -113,12 +114,22 @@ class GolemBlockchainGUI(QMainWindow):
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(header)
         
+        # Real data status indicator
+        self.real_data_status = QLabel("📊 Sample Data Mode - Click 'Fetch Real Data' for live blockchain data")
+        self.real_data_status.setStyleSheet("color: #888; font-style: italic; padding: 5px;")
+        self.real_data_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.real_data_status)
+        
         # Control panel
         control_panel = QHBoxLayout()
         
         self.refresh_btn = QPushButton("🔄 Refresh Data")
         self.refresh_btn.clicked.connect(self.refresh_blockchain_data)
         control_panel.addWidget(self.refresh_btn)
+        
+        self.fetch_real_data_btn = QPushButton("🌐 Fetch Real Blockchain Data")
+        self.fetch_real_data_btn.clicked.connect(self.fetch_real_blockchain_data)
+        control_panel.addWidget(self.fetch_real_data_btn)
         
         self.chain_combo = QComboBox()
         self.chain_combo.addItems(["ethereum", "optimism", "polygon", "base"])
@@ -181,6 +192,10 @@ class GolemBlockchainGUI(QMainWindow):
         self.load_strudel_btn = QPushButton("🌐 Load Strudel")
         self.load_strudel_btn.clicked.connect(self.load_strudel_website)
         control_panel.addWidget(self.load_strudel_btn)
+        
+        self.load_real_data_btn = QPushButton("📊 Load Real Data Tracks")
+        self.load_real_data_btn.clicked.connect(self.load_real_blockchain_data)
+        control_panel.addWidget(self.load_real_data_btn)
         
         self.export_btn = QPushButton("💾 Export Track")
         self.export_btn.clicked.connect(self.export_track)
@@ -259,8 +274,44 @@ class GolemBlockchainGUI(QMainWindow):
         self.multi_chain_btn.clicked.connect(self.generate_multi_chain_pattern)
         generation_controls.addWidget(self.multi_chain_btn)
         
+        # Experimental chain selection
+        generation_controls.addWidget(QLabel("Experimental Chain:"))
+        self.experimental_chain_combo = QComboBox()
+        self.experimental_chain_combo.addItems(["none", "ethereum", "optimism", "polygon", "base"])
+        self.experimental_chain_combo.setCurrentText("none")
+        generation_controls.addWidget(self.experimental_chain_combo)
+        
+        # Experimental multi-chain button
+        self.experimental_multi_btn = QPushButton("🎨 Experimental Multi-Chain")
+        self.experimental_multi_btn.clicked.connect(self.generate_experimental_multi_chain)
+        generation_controls.addWidget(self.experimental_multi_btn)
+        
         generation_controls.addStretch()
         strudel_layout.addLayout(generation_controls)
+        
+        # Individual chain pattern generation controls
+        individual_controls = QHBoxLayout()
+        individual_controls.addWidget(QLabel("Individual Chain Patterns:"))
+        
+        # Individual chain buttons
+        self.ethereum_btn = QPushButton("🔷 Ethereum")
+        self.ethereum_btn.clicked.connect(lambda: self.generate_individual_chain_pattern("ethereum"))
+        individual_controls.addWidget(self.ethereum_btn)
+        
+        self.optimism_btn = QPushButton("🟠 Optimism")
+        self.optimism_btn.clicked.connect(lambda: self.generate_individual_chain_pattern("optimism"))
+        individual_controls.addWidget(self.optimism_btn)
+        
+        self.polygon_btn = QPushButton("🟣 Polygon")
+        self.polygon_btn.clicked.connect(lambda: self.generate_individual_chain_pattern("polygon"))
+        individual_controls.addWidget(self.polygon_btn)
+        
+        self.base_btn = QPushButton("🔵 Base")
+        self.base_btn.clicked.connect(lambda: self.generate_individual_chain_pattern("base"))
+        individual_controls.addWidget(self.base_btn)
+        
+        individual_controls.addStretch()
+        strudel_layout.addLayout(individual_controls)
         
         # Integrated web browser for Strudel
         if WEBENGINE_AVAILABLE:
@@ -685,7 +736,7 @@ class GolemBlockchainGUI(QMainWindow):
             QMessageBox.critical(self, "Error", f"Failed to generate pattern: {str(e)}")
     
     def generate_multi_chain_pattern(self):
-        """Generate a multi-chain jam session using the same dynamic interpolation as single-chain"""
+        """Generate a clean multi-chain pattern using individual chain generation"""
         try:
             pattern_type = self.pattern_type_combo.currentText()
             
@@ -700,220 +751,22 @@ class GolemBlockchainGUI(QMainWindow):
             polygon_instrument = self.chain_instruments["polygon"]
             base_instrument = self.chain_instruments["base"]
             
-            # Calculate collaborative tempo based on all chains using the same interpolation
-            eth_tempo = int(self.strudel_generator._map_to_range(
-                self.strudel_generator._normalize_value(abs(ethereum_metric.price_change_percentage), 0, 50), 60, 180
-            ))
-            opt_tempo = int(self.strudel_generator._map_to_range(
-                self.strudel_generator._normalize_value(abs(optimism_metric.price_change_percentage), 0, 50), 60, 180
-            ))
-            poly_tempo = int(self.strudel_generator._map_to_range(
-                self.strudel_generator._normalize_value(abs(polygon_metric.price_change_percentage), 0, 50), 60, 180
-            ))
-            base_tempo = int(self.strudel_generator._map_to_range(
-                self.strudel_generator._normalize_value(abs(base_metric.price_change_percentage), 0, 50), 60, 180
-            ))
-            
-            avg_tempo = int((eth_tempo + opt_tempo + poly_tempo + base_tempo) / 4)
-            
-            # Generate dynamic patterns for each chain using the same interpolation methods
-            eth_rhythmic = self.strudel_generator._generate_rhythmic_pattern(ethereum_metric)
-            eth_melodic = self.strudel_generator._generate_melodic_pattern(ethereum_metric)
-            eth_harmonic = self.strudel_generator._generate_harmonic_pattern(ethereum_metric)
-            eth_textural = self.strudel_generator._generate_textural_pattern(ethereum_metric)
-            eth_effects = self.strudel_generator._generate_effects_chain(ethereum_metric)
-            
-            opt_rhythmic = self.strudel_generator._generate_rhythmic_pattern(optimism_metric)
-            opt_melodic = self.strudel_generator._generate_melodic_pattern(optimism_metric)
-            opt_harmonic = self.strudel_generator._generate_harmonic_pattern(optimism_metric)
-            opt_textural = self.strudel_generator._generate_textural_pattern(optimism_metric)
-            opt_effects = self.strudel_generator._generate_effects_chain(optimism_metric)
-            
-            poly_rhythmic = self.strudel_generator._generate_rhythmic_pattern(polygon_metric)
-            poly_melodic = self.strudel_generator._generate_melodic_pattern(polygon_metric)
-            poly_harmonic = self.strudel_generator._generate_harmonic_pattern(polygon_metric)
-            poly_textural = self.strudel_generator._generate_textural_pattern(polygon_metric)
-            poly_effects = self.strudel_generator._generate_effects_chain(polygon_metric)
-            
-            base_rhythmic = self.strudel_generator._generate_rhythmic_pattern(base_metric)
-            base_melodic = self.strudel_generator._generate_melodic_pattern(base_metric)
-            base_harmonic = self.strudel_generator._generate_harmonic_pattern(base_metric)
-            base_textural = self.strudel_generator._generate_textural_pattern(base_metric)
-            base_effects = self.strudel_generator._generate_effects_chain(base_metric)
-            
-            # Create a truly collaborative jam session with dynamic interpolation
-            if pattern_type == "experimental":
-                combined_code = f"""// Multi-Chain Dynamic Jam Session - {pattern_type.title()}
-// Generated: {datetime.now().isoformat()}
-// Ethereum: Lead | Optimism: Harmony | Polygon: Percussion | Base: Bass
-
-setcps({avg_tempo/60:.2f})
-
-stack(
-  // 🥁 COLLABORATIVE RHYTHM SECTION
-  // Each chain contributes unique rhythmic elements
-  s("{eth_rhythmic['kick']}").gain({random.uniform(0.7, 1.0):.2f}).room(0.2),
-  s("{opt_rhythmic['snare']}").gain({random.uniform(0.5, 0.8):.2f}).room(0.3),
-  s("{poly_rhythmic['hihat']}").gain({random.uniform(0.3, 0.6):.2f}).room(0.1),
-  s("{base_rhythmic['kick']}").gain({random.uniform(0.4, 0.7):.2f}).room(0.2),
-  
-  // 🎹 ETHEREUM - Lead Melody (Dynamic interpolation)
-  n("{eth_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_lead_6_voice")
-  .clip({eth_textural['texture']})
-  .jux(rev)
-  .room({random.uniform(0.5, 2.0):.1f})
-  .lpf({eth_textural['modulation']})
-  .gain({random.uniform(0.6, 0.9):.2f})
-  {''.join(eth_effects[:3])},
-  
-  // 🎼 OPTIMISM - Harmony Layer (Dynamic interpolation)
-  n("{opt_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")  // Use shared scale
-  .s("gm_lead_3_calliope")
-  .clip({opt_textural['texture']})
-  .room({random.uniform(0.4, 1.5):.1f})
-  .lpf({opt_textural['modulation']})
-  .gain({random.uniform(0.4, 0.7):.2f})
-  {''.join(opt_effects[:2])},
-  
-  // 🎸 BASE - Bass Foundation (Dynamic interpolation)
-  n("{base_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")  // Use shared scale
-  .s("gm_acoustic_bass")
-  .gain({random.uniform(0.5, 0.8):.2f})
-  .lpf({random.randint(200, 600)})
-  .room({random.uniform(0.3, 0.8):.1f})
-  {''.join(base_effects[:2])},
-  
-  // 🎛️ POLYGON - Percussion & Texture (Dynamic interpolation)
-  n("{poly_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")  // Use shared scale
-  .s("gm_synth_pad_2_warm")
-  .gain({random.uniform(0.2, 0.5):.2f})
-  .room({random.uniform(0.6, 1.2):.1f})
-  .shape({random.uniform(0.2, 0.5):.1f})
-  .delay({random.uniform(0.05, 0.15):.2f})
-  .lpf({poly_textural['modulation']})
-  {''.join(poly_effects[:2])},
-  
-  // 🎼 COLLABORATIVE HARMONIC LAYER
-  // All chains contribute to the harmony with dynamic interpolation
-  n("{eth_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_synth_strings_2")
-  .gain({random.uniform(0.1, 0.3):.2f})
-  .room({random.uniform(0.8, 1.5):.1f})
-  .shape({random.uniform(0.2, 0.4):.1f})
-  .delay({random.uniform(0.03, 0.08):.2f})
-  
-  // 🎵 INTERACTIVE ELEMENTS - Chains respond to each other
-  .mask("<0 1 1 0>/8")  // Ethereum leads
-  .mask("<1 0 0 1>/8")  // Optimism responds
-  .mask("<0 0 1 1>/8")  // Polygon adds texture
-  .mask("<1 1 0 0>/8")  // Base provides foundation
-)
-.late("[0 .01]*2")
-.size({random.uniform(2.0, 4.0):.1f})
-"""
-            
-            elif pattern_type == "minimal":
-                combined_code = f"""// Multi-Chain Minimal Jam - {pattern_type.title()}
-// Generated: {datetime.now().isoformat()}
-// Clean collaboration with dynamic interpolation
-
-setcps({avg_tempo/60:.2f})
-
-stack(
-  // 🥁 MINIMAL RHYTHM
-  s("{eth_rhythmic['kick']}").gain({random.uniform(0.8, 1.0):.2f}),
-  s("{opt_rhythmic['snare']}").gain({random.uniform(0.4, 0.6):.2f}),
-  
-  // 🎹 ETHEREUM - Lead
-  n("{eth_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_lead_3_calliope")
-  .gain({random.uniform(0.5, 0.7):.2f})
-  .room({random.uniform(0.4, 0.8):.1f}),
-  
-  // 🎼 OPTIMISM - Harmony
-  n("{opt_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_lead_6_voice")
-  .gain({random.uniform(0.3, 0.5):.2f})
-  .room({random.uniform(0.3, 0.6):.1f}),
-  
-  // 🎸 BASE - Bass
-  n("{base_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_acoustic_bass")
-  .gain({random.uniform(0.4, 0.6):.2f})
-  .lpf({random.randint(250, 400)}),
-  
-  // 🎛️ POLYGON - Pad
-  n("{poly_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_synth_pad_2_warm")
-  .gain({random.uniform(0.2, 0.4):.2f})
-  .room({random.uniform(0.5, 0.9):.1f})
-)
-"""
-            
-            else:  # basic
-                combined_code = f"""// Multi-Chain Basic Jam - {pattern_type.title()}
-// Generated: {datetime.now().isoformat()}
-// Simple collaboration with dynamic interpolation
-
-setcps({avg_tempo/60:.2f})
-
-stack(
-  // 🥁 BASIC RHYTHM
-  s("{eth_rhythmic['kick']}").gain({random.uniform(0.7, 0.9):.2f}),
-  s("{opt_rhythmic['snare']}").gain({random.uniform(0.5, 0.7):.2f}),
-  s("{poly_rhythmic['hihat']}").gain({random.uniform(0.3, 0.5):.2f}),
-  
-  // 🎹 ETHEREUM - Lead
-  n("{eth_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_lead_6_voice")
-  .gain({random.uniform(0.6, 0.8):.2f})
-  .room({random.uniform(0.5, 1.0):.1f}),
-  
-  // 🎼 OPTIMISM - Harmony
-  n("{opt_melodic['pattern']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_lead_3_calliope")
-  .gain({random.uniform(0.4, 0.6):.2f})
-  .room({random.uniform(0.4, 0.8):.1f}),
-  
-  // 🎸 BASE - Bass
-  n("{base_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_acoustic_bass")
-  .gain({random.uniform(0.5, 0.7):.2f})
-  .lpf({random.randint(300, 500)}),
-  
-  // 🎛️ POLYGON - Pad
-  n("{poly_harmonic['chord_progression']}")
-  .scale("{eth_melodic['scale']}")
-  .s("gm_synth_pad_2_warm")
-  .gain({random.uniform(0.3, 0.5):.2f})
-  .room({random.uniform(0.6, 1.0):.1f})
-  .shape({random.uniform(0.2, 0.4):.1f})
-)
-"""
+            # Use the clean multi-chain generation method
+            multi_track = self.strudel_generator.generate_multi_chain_track(
+                [ethereum_metric, optimism_metric, polygon_metric, base_metric],
+                [ethereum_instrument, optimism_instrument, polygon_instrument, base_instrument]
+            )
             
             # Create new track entry
             new_track = {
-                "id": f"multi_chain_dynamic_{pattern_type}_{int(datetime.now().timestamp())}",
-                "chain": "multi_dynamic",
+                "id": f"multi_chain_clean_{pattern_type}_{int(datetime.now().timestamp())}",
+                "chain": "multi_clean",
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "tempo": avg_tempo,
+                "tempo": multi_track.musical_parameters.tempo,
                 "instrument": "orchestra",
-                "effects": f"{pattern_type} dynamic jam",
-                "code": combined_code.strip(),
-                "track_obj": None
+                "effects": f"{pattern_type} collaborative jam",
+                "code": multi_track.strudel_code_string,
+                "track_obj": multi_track
             }
             
             # Add to tracks list
@@ -927,10 +780,128 @@ stack(
             self.tracks_table.selectRow(len(self.strudel_tracks) - 1)
             self.load_track_code(new_track)
             
-            self.status_bar.showMessage(f"Generated multi-chain dynamic jam - {pattern_type} (tempo: {avg_tempo} BPM)")
+            self.status_bar.showMessage(f"Generated clean multi-chain collaborative jam - {pattern_type} (tempo: {multi_track.musical_parameters.tempo} BPM)")
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to generate multi-chain jam: {str(e)}")
+    
+    def generate_experimental_multi_chain(self):
+        """Generate experimental multi-chain with selected chain as lead"""
+        try:
+            experimental_chain = self.experimental_chain_combo.currentText()
+            
+            if experimental_chain == "none":
+                QMessageBox.warning(self, "Warning", "Please select a chain for experimental generation.")
+                return
+            
+            # Get all chain data
+            ethereum_metric = self.analyzed_metrics["ethereum"]
+            optimism_metric = self.analyzed_metrics["optimism"]
+            polygon_metric = self.analyzed_metrics["polygon"]
+            base_metric = self.analyzed_metrics["base"]
+            
+            ethereum_instrument = self.chain_instruments["ethereum"]
+            optimism_instrument = self.chain_instruments["optimism"]
+            polygon_instrument = self.chain_instruments["polygon"]
+            base_instrument = self.chain_instruments["base"]
+            
+            # Generate experimental multi-chain with selected chain as lead
+            multi_track = self.strudel_generator.generate_multi_chain_track(
+                [ethereum_metric, optimism_metric, polygon_metric, base_metric],
+                [ethereum_instrument, optimism_instrument, polygon_instrument, base_instrument],
+                experimental_chain=experimental_chain
+            )
+            
+            # Create new track entry
+            new_track = {
+                "id": f"multi_chain_experimental_{experimental_chain}_{int(datetime.now().timestamp())}",
+                "chain": f"multi_experimental_{experimental_chain}",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "tempo": multi_track.musical_parameters.tempo,
+                "instrument": "experimental",
+                "effects": f"experimental {experimental_chain} lead",
+                "code": multi_track.strudel_code_string,
+                "track_obj": multi_track
+            }
+            
+            # Add to tracks list
+            self.strudel_tracks.append(new_track)
+            
+            # Update display and save data
+            self.update_strudel_tracks()
+            self.save_data_to_json()
+            
+            # Select the new track
+            self.tracks_table.selectRow(len(self.strudel_tracks) - 1)
+            self.load_track_code(new_track)
+            
+            self.status_bar.showMessage(f"Generated experimental multi-chain with {experimental_chain} as lead (tempo: {multi_track.musical_parameters.tempo} BPM)")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to generate experimental multi-chain: {str(e)}")
+    
+    def generate_individual_chain_pattern(self, chain_name):
+        """Generate a pattern for a specific individual chain"""
+        try:
+            if chain_name not in self.analyzed_metrics:
+                QMessageBox.warning(self, "Warning", f"Chain '{chain_name}' not found in analyzed metrics.")
+                return
+            
+            if chain_name not in self.chain_instruments:
+                QMessageBox.warning(self, "Warning", f"Chain '{chain_name}' not found in chain instruments.")
+                return
+            
+            pattern_type = self.pattern_type_combo.currentText()
+            
+            # Get chain data
+            metric = self.analyzed_metrics[chain_name]
+            instrument = self.chain_instruments[chain_name]
+            
+            # Generate pattern based on type
+            if pattern_type == "basic":
+                track = self.strudel_generator.generate_track(metric, instrument)
+                code = track.strudel_code_string
+                tempo = track.musical_parameters.tempo
+                effects = ", ".join(track.musical_parameters.effects) if track.musical_parameters.effects else "none"
+            else:
+                code = self.strudel_generator.generate_advanced_pattern(metric, instrument, pattern_type)
+                # Extract tempo from the generated code
+                tempo = 120  # Default tempo
+                if "setcps(" in code:
+                    try:
+                        cps_line = [line for line in code.split('\n') if 'setcps(' in line][0]
+                        cps_value = float(cps_line.split('setcps(')[1].split(')')[0])
+                        tempo = int(cps_value * 60)  # Convert CPS to BPM
+                    except:
+                        tempo = 120
+                effects = pattern_type
+            
+            # Create new track entry
+            new_track = {
+                "id": f"{chain_name}_{pattern_type}_{int(datetime.now().timestamp())}",
+                "chain": chain_name,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "tempo": tempo,
+                "instrument": instrument.instrument_type,
+                "effects": effects,
+                "code": code
+            }
+            
+            # Add to tracks list
+            self.strudel_tracks.append(new_track)
+            
+            # Update display and save data
+            self.update_strudel_tracks()
+            self.save_data_to_json()
+            
+            # Select the new track
+            self.tracks_table.selectRow(len(self.strudel_tracks) - 1)
+            self.load_track_code(new_track)
+            
+            self.status_bar.showMessage(f"Generated {pattern_type} pattern for {chain_name} (tempo: {tempo} BPM)")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to generate individual chain pattern for {chain_name}: {str(e)}")
     
     def generate_blockchain_symphony(self):
         """Generate a symphony that combines all blockchain data into one musical composition (legacy method)"""
@@ -1084,6 +1055,103 @@ stack(
         QTimer.singleShot(1000, lambda: self.status_bar.showMessage("Blockchain data refreshed"))
         self.update_blockchain_display()
     
+    def fetch_real_blockchain_data(self):
+        """Fetch real blockchain data from the last 10 blocks"""
+        try:
+            self.status_bar.showMessage("🌐 Fetching real blockchain data from last 10 blocks...")
+            
+            # Run the blockchain data fetcher
+            result = subprocess.run(
+                ["python", "blockchain_data_fetcher.py"],
+                cwd=".",
+                capture_output=True,
+                text=True,
+                timeout=120  # 2 minute timeout
+            )
+            
+            if result.returncode == 0:
+                # Load the generated real data
+                self.load_real_blockchain_data()
+                self.status_bar.showMessage("✅ Real blockchain data fetched successfully!")
+                
+                # Show success message
+                QMessageBox.information(
+                    self, "Success", 
+                    "Real blockchain data fetched successfully!\n\n"
+                    "Generated audio tracks from:\n"
+                    "• Optimism (10 blocks)\n"
+                    "• Polygon (10 blocks)\n" 
+                    "• Base (10 blocks)\n\n"
+                    "Check the Strudel tab to see the generated tracks!"
+                )
+            else:
+                # Show error message
+                error_msg = result.stderr if result.stderr else "Unknown error occurred"
+                QMessageBox.critical(
+                    self, "Error", 
+                    f"Failed to fetch real blockchain data:\n\n{error_msg}"
+                )
+                self.status_bar.showMessage("❌ Failed to fetch real blockchain data")
+                
+        except subprocess.TimeoutExpired:
+            QMessageBox.critical(
+                self, "Timeout", 
+                "Request timed out. The blockchain data fetch took too long."
+            )
+            self.status_bar.showMessage("❌ Request timed out")
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Error", 
+                f"An error occurred while fetching real blockchain data:\n\n{str(e)}"
+            )
+            self.status_bar.showMessage("❌ Error fetching real blockchain data")
+    
+    def load_real_blockchain_data(self):
+        """Load real blockchain data from the generated JSON file"""
+        try:
+            with open("real_blockchain_audio_data.json", "r") as f:
+                real_data = json.load(f)
+            
+            # Update analyzed metrics with real data
+            for chain, metrics in real_data["analyzed_metrics"].items():
+                if chain in self.analyzed_metrics:
+                    # Update existing metrics with real data
+                    self.analyzed_metrics[chain] = AnalyzedMetric(
+                        chain_name=metrics["chain_name"],
+                        timestamp=datetime.fromisoformat(metrics["timestamp"]),
+                        price_change_percentage=metrics["price_change_percentage"],
+                        gas_fee_trend=metrics["gas_fee_trend"],
+                        transaction_volume_change=metrics["transaction_volume_change"],
+                        block_production_rate=metrics["block_production_rate"],
+                        network_activity_score=metrics["network_activity_score"],
+                        volatility_index=metrics["volatility_index"],
+                        liquidity_score=metrics["liquidity_score"]
+                    )
+            
+            # Add real data tracks to strudel_tracks
+            for track in real_data["strudel_tracks"]:
+                # Check if track already exists
+                existing_track = next(
+                    (t for t in self.strudel_tracks if t["id"] == track["id"]), 
+                    None
+                )
+                if not existing_track:
+                    self.strudel_tracks.append(track)
+            
+            # Update displays
+            self.update_all_displays()
+            
+            # Update status indicator
+            self.real_data_status.setText("✅ Real Data Mode - Live blockchain data from last 10 blocks")
+            self.real_data_status.setStyleSheet("color: #4CAF50; font-weight: bold; padding: 5px;")
+            
+            print(f"✅ Loaded real blockchain data: {len(real_data['strudel_tracks'])} tracks")
+            
+        except FileNotFoundError:
+            print("❌ real_blockchain_audio_data.json not found")
+        except Exception as e:
+            print(f"❌ Error loading real blockchain data: {e}")
+    
     def update_blockchain_display(self):
         """Update blockchain data display"""
         chain = self.chain_combo.currentText()
@@ -1093,16 +1161,37 @@ stack(
         
         data = self.blockchain_data[chain]
         
-        # Update table
-        metrics = [
-            ("Chain Name", chain.title()),
-            ("Price", f"${data['price']:,.2f}"),
-            ("Volume", f"${data['volume']:,.0f}"),
-            ("Gas Fee", f"{data['gas_fee']:.2f} Gwei"),
-            ("Transactions", str(data['transactions'])),
-            ("Block Number", str(data['blocks'])),
-            ("Volatility", f"{data['volatility']:.2f}%")
-        ]
+        # Check if we have real data for this chain
+        has_real_data = chain in self.analyzed_metrics and self.analyzed_metrics[chain].network_activity_score != 50.0
+        
+        if has_real_data:
+            # Show real blockchain data
+            real_metrics = self.analyzed_metrics[chain]
+            metrics = [
+                ("Chain Name", f"{chain.title()} (Real Data)"),
+                ("Activity Score", f"{real_metrics.network_activity_score:.1f}"),
+                ("Volatility Index", f"{real_metrics.volatility_index:.1f}"),
+                ("Liquidity Score", f"{real_metrics.liquidity_score:.1f}"),
+                ("TX Volume Change", f"{real_metrics.transaction_volume_change:.1f}%"),
+                ("Gas Fee Trend", f"{real_metrics.gas_fee_trend:.1f}%"),
+                ("Block Production Rate", f"{real_metrics.block_production_rate:.1f} blocks/min"),
+                ("Price Change", f"{real_metrics.price_change_percentage:.1f}%"),
+                ("Data Source", "Last 10 blocks"),
+                ("Timestamp", real_metrics.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
+            ]
+        else:
+            # Show sample data
+            metrics = [
+                ("Chain Name", f"{chain.title()} (Sample Data)"),
+                ("Price", f"${data['price']:,.2f}"),
+                ("Volume", f"${data['volume']:,.0f}"),
+                ("Gas Fee", f"{data['gas_fee']:.2f} Gwei"),
+                ("Transactions", str(data['transactions'])),
+                ("Block Number", str(data['blocks'])),
+                ("Volatility", f"{data['volatility']:.2f}%"),
+                ("Data Source", "Sample data"),
+                ("Note", "Click 'Fetch Real Data' for live data")
+            ]
         
         self.data_table.setRowCount(len(metrics))
         for i, (metric, value) in enumerate(metrics):
