@@ -14,7 +14,9 @@ from typing import List, Optional
 
 # Import our custom modules
 from strudel_generator import StrudelGenerator
-from models import AnalyzedMetric, ChainInstrument
+from models import AnalyzedMetric, ChainInstrument, StrudelTrack
+from golem_storage import GolemStorage
+import asyncio
 
 # Try to import PyQt6 with WebEngine
 try:
@@ -62,6 +64,7 @@ class GolemBlockchainGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.strudel_generator = StrudelGenerator()
+        self.golem_storage = GolemStorage()
         self.setup_status_bar()
         self.setup_menu()
         self.init_ui()
@@ -250,6 +253,26 @@ class GolemBlockchainGUI(QMainWindow):
         self.load_track_btn = QPushButton("🎵 Play Symphony")
         self.load_track_btn.clicked.connect(self.load_selected_track)
         player_controls.addWidget(self.load_track_btn)
+        
+        self.push_to_golem_btn = QPushButton("🚀 Push to Golem")
+        self.push_to_golem_btn.clicked.connect(self.push_to_golem)
+        self.push_to_golem_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+            }
+        """)
+        player_controls.addWidget(self.push_to_golem_btn)
         
         player_controls.addStretch()
         strudel_layout.addLayout(player_controls)
@@ -902,6 +925,131 @@ class GolemBlockchainGUI(QMainWindow):
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to generate individual chain pattern for {chain_name}: {str(e)}")
+    
+    def push_to_golem(self):
+        """Push selected track to Golem DB"""
+        current_row = self.tracks_table.currentRow()
+        if current_row < 0:
+            QMessageBox.warning(self, "Warning", "Please select a track to push to Golem.")
+            return
+        
+        track_data = self.strudel_tracks[current_row]
+        
+        # Check if track has a track_obj (StrudelTrack object)
+        if 'track_obj' in track_data and track_data['track_obj']:
+            track_obj = track_data['track_obj']
+        else:
+            # Create a StrudelTrack object from the track data
+            try:
+                # Get the corresponding metric and instrument
+                chain_name = track_data['chain']
+                if chain_name in self.analyzed_metrics and chain_name in self.chain_instruments:
+                    metric = self.analyzed_metrics[chain_name]
+                    instrument = self.chain_instruments[chain_name]
+                    
+                    # Create a basic StrudelTrack object
+                    from models import MusicalParameters
+                    musical_params = MusicalParameters(
+                        tempo=track_data['tempo'],
+                        base_note="C4",
+                        rhythm_pattern="dynamic",
+                        gain=0.7,
+                        sound_profile=instrument.sound_profile,
+                        scale="C:major",
+                        complexity=5,
+                        effects=[],
+                        instrument_type=instrument.instrument_type
+                    )
+                    
+                    track_obj = StrudelTrack(
+                        id=track_data['id'],
+                        timestamp=datetime.now(),
+                        chain_name=chain_name,
+                        strudel_code_string=track_data['code'],
+                        source_kpis=metric,
+                        musical_parameters=musical_params,
+                        created_at=datetime.now()
+                    )
+                else:
+                    QMessageBox.warning(self, "Warning", f"Could not find metric or instrument data for chain: {chain_name}")
+                    return
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to create StrudelTrack object: {str(e)}")
+                return
+        
+        # Show confirmation dialog
+        reply = QMessageBox.question(
+            self, "Push to Golem", 
+            f"Push track '{track_data['id']}' to Golem DB?\n\n"
+            f"Chain: {track_data['chain']}\n"
+            f"Tempo: {track_data['tempo']} BPM\n"
+            f"Instrument: {track_data['instrument']}\n\n"
+            f"This will store the track on the Golem network.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            # Disable button during operation
+            self.push_to_golem_btn.setEnabled(False)
+            self.push_to_golem_btn.setText("🔄 Pushing...")
+            self.status_bar.showMessage("Pushing track to Golem DB...")
+            
+            # Run the async operation
+            try:
+                # Create a new event loop for this operation
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                # Run the push operation
+                success = loop.run_until_complete(self._push_track_to_golem(track_obj))
+                
+                if success:
+                    QMessageBox.information(
+                        self, "Success", 
+                        f"Track '{track_data['id']}' successfully pushed to Golem DB!\n\n"
+                        f"The track is now stored on the Golem network and can be "
+                        f"retrieved by other users."
+                    )
+                    self.status_bar.showMessage(f"✅ Track '{track_data['id']}' pushed to Golem successfully")
+                else:
+                    QMessageBox.critical(
+                        self, "Error", 
+                        f"Failed to push track to Golem DB.\n\n"
+                        f"Please check your Golem connection and try again."
+                    )
+                    self.status_bar.showMessage("❌ Failed to push track to Golem")
+                
+            except Exception as e:
+                QMessageBox.critical(
+                    self, "Error", 
+                    f"An error occurred while pushing to Golem:\n\n{str(e)}"
+                )
+                self.status_bar.showMessage("❌ Error pushing to Golem")
+            finally:
+                # Re-enable button
+                self.push_to_golem_btn.setEnabled(True)
+                self.push_to_golem_btn.setText("🚀 Push to Golem")
+                loop.close()
+    
+    async def _push_track_to_golem(self, track: StrudelTrack) -> bool:
+        """Async method to push track to Golem DB"""
+        try:
+            # Connect to Golem
+            if not await self.golem_storage.connect():
+                return False
+            
+            # Store the track
+            success = await self.golem_storage.store_strudel_track(track)
+            
+            # Disconnect
+            await self.golem_storage.disconnect()
+            
+            return success
+            
+        except Exception as e:
+            print(f"Error in _push_track_to_golem: {e}")
+            return False
     
     def generate_blockchain_symphony(self):
         """Generate a symphony that combines all blockchain data into one musical composition (legacy method)"""

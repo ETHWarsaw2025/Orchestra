@@ -34,14 +34,14 @@ class StrudelGenerator:
             'ride': ['ride', 'ride2']
         }
         
-        # Melodic samples
+        # Melodic samples - using basic Strudel sounds
         self.melodic_samples = {
-            'lead': ['gm_lead_6_voice', 'gm_lead_3_calliope', 'gm_lead_2_sawtooth'],
-            'bass': ['gm_acoustic_bass', 'gm_synth_bass_1', 'gm_electric_bass_finger'],
-            'pad': ['gm_synth_strings_2', 'gm_synth_pad_2_warm', 'gm_synth_pad_3_polysynth'],
-            'piano': ['gm_acoustic_grand_piano', 'gm_electric_piano_1_rhodes', 'gm_electric_piano_2_chorused_rhodes'],
-            'organ': ['gm_organ_1_drawbar', 'gm_organ_2_percussive', 'gm_organ_3_rock'],
-            'guitar': ['gm_electric_guitar_clean', 'gm_electric_guitar_muted', 'gm_acoustic_guitar_nylon']
+            'lead': ['piano', 'saw', 'sine', 'tri', 'square'],
+            'bass': ['bass', 'bd', 'kick'],
+            'pad': ['piano', 'sine', 'saw', 'tri'],
+            'piano': ['piano', 'sine', 'saw'],
+            'organ': ['sine', 'saw', 'tri'],
+            'guitar': ['sine', 'saw', 'tri']
         }
         
         # Effect parameters
@@ -322,11 +322,9 @@ setcps({tempo/60:.2f})
 
 stack(
   // RHYTHMIC LAYER
-  stack(
-    s("{rhythmic['kick']}").gain({random.uniform(0.6, 1.0):.2f}),
-    s("{rhythmic['snare']}").gain({random.uniform(0.4, 0.8):.2f}),
-    s("{rhythmic['hihat']}").gain({random.uniform(0.2, 0.6):.2f})
-  ).bank('RolandTR909'),
+  s("{rhythmic['kick']}").gain({random.uniform(0.6, 1.0):.2f}),
+  s("{rhythmic['snare']}").gain({random.uniform(0.4, 0.8):.2f}),
+  s("{rhythmic['hihat']}").gain({random.uniform(0.2, 0.6):.2f}),
   
   // LEAD MELODY
   n("{melodic['pattern']}")
@@ -449,27 +447,49 @@ stack(
                         
                         supporting_elements.append(supporting_element)
                 
-                # Combine the experimental base with supporting elements
+                # Extract the main pattern from the experimental base code
+                base_lines = base_code.split('\n')
+                main_pattern_start = None
+                main_pattern_end = None
+                
+                for i, line in enumerate(base_lines):
+                    if 'stack(' in line:
+                        main_pattern_start = i
+                    elif main_pattern_start and line.strip() == ')':
+                        main_pattern_end = i
+                        break
+                
+                if main_pattern_start and main_pattern_end:
+                    # Extract the content inside the main stack
+                    main_stack_content = base_lines[main_pattern_start + 1:main_pattern_end]
+                    main_stack_content = [line for line in main_stack_content if line.strip()]
+                else:
+                    main_stack_content = []
+                
+                # Combine all elements into one unified stack
+                all_elements = main_stack_content + supporting_elements
+                
                 # Remove comma from last element
-                if supporting_elements:
-                    supporting_elements[-1] = supporting_elements[-1].rstrip(',')
+                if all_elements:
+                    all_elements[-1] = all_elements[-1].rstrip(',')
+                
+                # Calculate tempo from the experimental chain
+                experimental_tempo = int(self._map_to_range(
+                    self._normalize_value(abs(experimental_metric.price_change_percentage), 0, 50), 60, 180
+                ))
                 
                 combined_code = f"""// Experimental Multi-Chain - {experimental_chain.upper()} Lead
 // Generated: {datetime.now().isoformat()}
 // Lead Chain: {experimental_chain}
 // Supporting: {', '.join([m.chain_name for m in analyzed_metrics if m.chain_name != experimental_chain])}
 
-{base_code}
+setcps({experimental_tempo/60:.2f})
 
-// Supporting chains
 stack(
-{chr(10).join(supporting_elements)}
-)"""
-                
-                # Calculate tempo from the experimental chain
-                experimental_tempo = int(self._map_to_range(
-                    self._normalize_value(abs(experimental_metric.price_change_percentage), 0, 50), 60, 180
-                ))
+{chr(10).join(all_elements)}
+)
+.late("[0 .01]*2")
+.size({random.uniform(2.0, 4.0):.1f})"""
                 
                 # Create musical parameters
                 musical_params = MusicalParameters(
@@ -546,14 +566,13 @@ stack(
   .gain({random.uniform(0.2, 0.4):.2f})
   .room({random.uniform(0.8, 1.5):.1f})
   .shape({random.uniform(0.2, 0.4):.1f})
-  .delay({random.uniform(0.05, 0.15):.2f})"""
+  .delay({random.uniform(0.05, 0.15):.2f}),"""
         
         # Generate clean multi-chain code
         chain_names = [m.chain_name for m in analyzed_metrics]
         
-        # Remove comma from last chain pattern
-        if chain_patterns:
-            chain_patterns[-1] = chain_patterns[-1].rstrip(',')
+        # Remove comma from last element (harmonic code)
+        harmonic_code = harmonic_code.rstrip(',')
         
         combined_code = f"""// Multi-Chain Collaborative Jam
 // Generated: {datetime.now().isoformat()}
@@ -619,12 +638,10 @@ setcps({tempo/60:.2f})
 
 stack(
   // Complex rhythmic foundation
-  stack(
-    s("{rhythmic['kick']}").struct("<[x*<1 2> [~@3 x]] x>"),
-    s("~ [rim, sd:<2 3>]").room("<0 .2>"),
-    n("[0 <1 3>]*<2!3 4>").s("hh"),
-    s("rd:<1!3 2>*2").mask("<0 0 1 1>/16").gain(.5)
-  ).bank('RolandTR909')
+  s("{rhythmic['kick']}").struct("<[x*<1 2> [~@3 x]] x>"),
+  s("~ [rim, sd:<2 3>]").room("<0 .2>"),
+  n("[0 <1 3>]*<2!3 4>").s("hh"),
+  s("rd:<1!3 2>*2").mask("<0 0 1 1>/16").gain(.5)
   .mask("<[0 1] 1 1 1>/16".early(.5)),
   
   // Lead melody with complex modulation
